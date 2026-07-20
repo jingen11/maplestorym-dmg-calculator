@@ -54,6 +54,11 @@ export const metadata: Metadata = {
     "flame odds",
     "eternal rebirth flame",
     "MSM flame calculator",
+    "cube probabilities",
+    "MapleStory M cubes",
+    "potential",
+    "bonus potential",
+    "black cube",
   ],
   alternates: {
     canonical: "/",
@@ -108,6 +113,9 @@ export default function RootLayout({
               </Link>
               <Link href="/flames" className="hover:text-maple">
                 Flames
+              </Link>
+              <Link href="/cubes" className="hover:text-maple">
+                Cubes
               </Link>
             </div>
           </nav>
