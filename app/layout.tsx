@@ -48,6 +48,12 @@ export const metadata: Metadata = {
     "level modifier",
     "food buffs",
     "MSM boss damage calculator",
+    "rebirth flame",
+    "MapleStory M flames",
+    "flame probabilities",
+    "flame odds",
+    "eternal rebirth flame",
+    "MSM flame calculator",
   ],
   alternates: {
     canonical: "/",
@@ -98,7 +104,10 @@ export default function RootLayout({
             </Link>
             <div className="flex gap-4 text-sm font-bold text-ink">
               <Link href="/" className="hover:text-maple">
-                Damage Calculator
+                Damage
+              </Link>
+              <Link href="/flames" className="hover:text-maple">
+                Flames
               </Link>
             </div>
           </nav>

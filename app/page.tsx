@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import DamageCalculator from "@/components/DamageCalculator";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -84,6 +85,23 @@ export default function HomePage() {
       </div>
 
       <AdSlot slot="homepage-below-calculator" className="mt-8" />
+
+      <section className="window mt-10 max-w-2xl">
+        <h2 className="window-title text-base">More tools</h2>
+        <div className="p-4">
+          <Link
+            href="/flames"
+            className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+          >
+            Rebirth Flame probabilities →
+          </Link>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            Nexon&apos;s official flame tables, made interactive. Pick the
+            options you want and see your real chance per flame — and how
+            many flames it takes to get there.
+          </p>
+        </div>
+      </section>
 
       <section className="window mt-10 max-w-2xl">
         <h2 className="window-title text-base">Guide</h2>
