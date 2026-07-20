@@ -2,4 +2,4 @@
 export const SITE_URL = "https://maplestorym.com";
 export const SITE_NAME = "MapleStory M Toolbox";
 export const SITE_DESCRIPTION =
-  "Free tools for MapleStory M players. Damage calculator with mob and boss damage per hit, level-difference modifier, boss defense (IED), food buffs and crit min–max, plus interactive Rebirth Flame probability tables from Nexon's official disclosure.";
+  "Free tools for MapleStory M players. Damage calculator with mob and boss damage per hit, level-difference modifier, boss defense (IED) and food buffs, plus interactive Rebirth Flame and cube probability tables built from Nexon's official disclosures.";

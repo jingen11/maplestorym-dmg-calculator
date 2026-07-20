@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import FlameTable from "@/components/FlameTable";
 import {
@@ -289,6 +290,36 @@ export default function FlamesPage() {
                 flame can never roll a second option at all.
               </li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+
+      <section className="window mt-10 max-w-2xl">
+        <h2 className="window-title text-base">More tools</h2>
+        <div className="space-y-4 p-4">
+          <div>
+            <Link
+              href="/cubes"
+              className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+            >
+              Cube probabilities →
+            </Link>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              Potential and bonus potential odds for every equipment part and rank, with the cubes needed to hit the lines you want.
+            </p>
+          </div>
+          <div>
+            <Link
+              href="/"
+              className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+            >
+              Damage calculator →
+            </Link>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              Mob and boss damage per hit, with the level penalty, boss
+              defense and food buffs factored in.
+            </p>
           </div>
         </div>
       </section>

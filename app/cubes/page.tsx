@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import CubeTable from "@/components/CubeTable";
 import {
@@ -279,6 +280,36 @@ export default function CubesPage() {
                 of them, not all of them.
               </li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+
+      <section className="window mt-10 max-w-2xl">
+        <h2 className="window-title text-base">More tools</h2>
+        <div className="space-y-4 p-4">
+          <div>
+            <Link
+              href="/flames"
+              className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+            >
+              Rebirth Flame probabilities →
+            </Link>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              Every flame option and its exact drop rate, with the flames needed to land the options you want.
+            </p>
+          </div>
+          <div>
+            <Link
+              href="/"
+              className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+            >
+              Damage calculator →
+            </Link>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              Mob and boss damage per hit, with the level penalty, boss
+              defense and food buffs factored in.
+            </p>
           </div>
         </div>
       </section>
