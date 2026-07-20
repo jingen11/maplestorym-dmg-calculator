@@ -670,7 +670,7 @@ export default function DamageCalculator() {
                   type="checkbox"
                   checked={nodeIed}
                   onChange={(e) => setNodeIed(e.target.checked)}
-                  className="h-5 w-5 accent-maple"
+                  className="h-5 w-5 shrink-0 accent-maple"
                 />
                 <span>
                   <span className="block text-sm font-bold text-ink">
@@ -688,7 +688,7 @@ export default function DamageCalculator() {
                   type="checkbox"
                   checked={defenseSmash4}
                   onChange={(e) => setDefenseSmash4(e.target.checked)}
-                  className="h-5 w-5 accent-maple"
+                  className="h-5 w-5 shrink-0 accent-maple"
                 />
                 <span>
                   <span className="block text-sm font-bold text-ink">
