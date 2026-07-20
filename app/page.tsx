@@ -100,6 +100,16 @@ export default function HomePage() {
             options you want and see your real chance per flame — and how
             many flames it takes to get there.
           </p>
+          <Link
+            href="/cubes"
+            className="mt-4 block text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+          >
+            Cube probabilities →
+          </Link>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            Potential and bonus potential odds for every equipment part and
+            rank, with the cubes needed to hit the lines you want.
+          </p>
         </div>
       </section>
 
