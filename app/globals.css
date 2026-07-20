@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Maple world palette: daytime sky, cream dialog panels, wood borders */
+  --color-sky: #b9ddf3;
+  --color-sky-light: #e3f3fc;
+  --color-sky-ink: #33627f;
+  --color-panel: #fdf3dc;
+  --color-panel-deep: #f6e6c4;
+  --color-wood: #7c5433;
+  --color-wood-light: #b58a5f;
+  --color-ink: #43301f;
+  --color-ink-soft: #8a7458;
+  --color-maple: #e8590c;
+  --color-maple-deep: #c2410c;
+  --color-leaf: #4f9d3f;
+
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-lilita);
+  --font-pixel: var(--font-pixel-2p);
+}
+
+body {
+  color: var(--color-ink);
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* In-game floating damage numbers, MSM "New" effect. Each digit is its own
+   span (see DamageNumber): gradient fill dark-at-top → light-at-bottom, a
+   thin white outline (text-stroke), and a black line wrapping the white
+   outline (stacked drop-shadows). paint-order keeps the stroke behind the
+   fill so the digits stay fat. */
+.dmg-text,
+.dmg-text-crit {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 0.035em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0.02em 0 0 #17110c) drop-shadow(-0.02em 0 0 #17110c)
+    drop-shadow(0 0.02em 0 #17110c) drop-shadow(0 -0.02em 0 #17110c);
+}
+
+/* Normal hits: red-orange down to yellow */
+.dmg-text {
+  background-image: linear-gradient(#fb3518, #f3da30);
+}
+
+/* Crits: red down to pink */
+.dmg-text-crit {
+  background-image: linear-gradient(#d60602, #f74dd7);
+}
+
+/* Digit layout: big leading digit, then a wave — 2nd digit up, 3rd down… */
+.dmg-number {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dmg-digit {
+  display: inline-block;
+  /* Lilita One digits run tall and narrow; widen them so they read
+     chunky like the in-game damage font */
+  scale: 1.25 1;
+}
+
+/* Digits tuck under each other; later ones paint on top (DOM order) */
+.dmg-digit + .dmg-digit {
+  margin-left: -0.05em;
+}
+
+.dmg-digit-lead {
+  font-size: 1.3em;
+}
+
+.dmg-digit-up {
+  translate: 0 -0.06em;
+}
+
+.dmg-digit-down {
+  translate: 0 0.05em;
+}
+
+@keyframes dmg-pop {
+  0% {
+    transform: translateY(14px) scale(0.4);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(-5px) scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Looping boom: same shape as the update pop (jump + overshoot) minus the
+   fade-in, with a rest between booms so it reads as repeated hits */
+@keyframes dmg-boom {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  8% {
+    transform: translateY(10px) scale(0.85);
+  }
+  22% {
+    transform: translateY(-5px) scale(1.12);
+  }
+  34% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dmg-pop {
+  display: inline-block;
+  /* One-shot entrance pop on value change, then the boom loops forever
+     (delayed so it starts where the entrance pop ends) */
+  animation:
+    dmg-pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4),
+    dmg-boom 1.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.35s infinite;
+}
+
+/* Game dialog window: cream fill, chunky wood border, title bar like the
+   in-game stat window */
+.window {
+  overflow: hidden;
+  background: var(--color-panel);
+  border: 3px solid var(--color-wood);
+  border-radius: 1rem;
+  box-shadow: 0 4px 0 rgba(67, 48, 31, 0.25);
+}
+
+.window-title {
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(var(--color-panel-deep), #f0dcae);
+  border-bottom: 3px solid var(--color-wood);
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--color-ink);
+}
+
+/* Results panel: plain sky backdrop for the floating damage numbers.
+   No position here — the component sets `sticky` (a plain `position`
+   in this unlayered rule would override the Tailwind utility). */
+.stage {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 3px solid var(--color-wood);
+  border-radius: 1rem;
+  /* Chunky offset plus a soft drop so the card reads elevated while
+     floating over the forms */
+  box-shadow:
+    0 4px 0 rgba(67, 48, 31, 0.25),
+    0 14px 28px rgba(67, 48, 31, 0.3);
+  /* Slightly translucent so the backdrop blur shows the content the
+     floating card passes over */
+  background: linear-gradient(
+    rgb(223 242 252 / 0.82) 0%,
+    rgb(185 221 243 / 0.82) 70%,
+    rgb(165 210 238 / 0.82) 100%
+  );
+}
+
+/* HUD labels on the stage use the pixel face. Sized here rather than
+   with a utility: this rule is unlayered, so it would beat one. */
+.stage-label {
+  font-family: var(--font-nunito), sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-sky-ink);
+}
+
+@media (min-width: 640px) {
+  .stage-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+}
+
+input:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-maple);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dmg-pop {
+    animation: none;
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
+  "context": {
+    "domainName": "maplestorym.com",
+    "//": "Optional: set hostedZoneId to skip the Route53 lookup (lets cdk synth run without AWS credentials)"
+  }
+}

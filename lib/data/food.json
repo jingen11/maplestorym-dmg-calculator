@@ -1,0 +1,97 @@
+{
+  "Fruity Yogurt": {
+    "imagePath": "FruityYogurt",
+    "effect": "PA",
+    "range": "50%"
+  },
+  "Buckwheat Jelly": {
+    "imagePath": "BuckwheatJelly",
+    "effect": "PA",
+    "range": "30%"
+  },
+  "Grape Juice": {
+    "imagePath": "GrapeJuice",
+    "effect": "MA",
+    "range": "50%"
+  },
+  "Buttery Roasted Squid": {
+    "imagePath": "ButteryRoastedSquid",
+    "effect": "MA",
+    "range": "30%"
+  },
+  "Boss Rush Boost Potion": {
+    "imagePath": "BossRushBoostPotion",
+    "effect": "BA",
+    "range": "50%"
+  },
+  "Fried Shrimp": {
+    "imagePath": "FriedShrimp",
+    "effect": "BA",
+    "range": "50%"
+  },
+  "Baby Chick Cookie": {
+    "imagePath": "BabyChickCookie",
+    "effect": "BA",
+    "range": "30%"
+  },
+  "Candy Basket": {
+    "imagePath": "CandyBasket",
+    "effect": "PD",
+    "range": "30%"
+  },
+  "Pumpkin Pieces": {
+    "imagePath": "PumpkinPieces",
+    "effect": "PD",
+    "range": "10%"
+  },
+  "Candy Cane": {
+    "imagePath": "CandyCane",
+    "effect": "MD",
+    "range": "30%"
+  },
+  "Pure Water": {
+    "imagePath": "PureWater",
+    "effect": "MD",
+    "range": "10%"
+  },
+  "Carrot Juice": {
+    "imagePath": "CarrotJuice",
+    "effect": "CR",
+    "range": "30%"
+  },
+  "Very Special Sundae": {
+    "imagePath": "VerySpecialSundae",
+    "effect": "CR",
+    "range": "10%"
+  },
+  "Chestnut": {
+    "imagePath": "Chestnut",
+    "effect": "CD",
+    "range": "30%"
+  },
+  "Rice Cake Soup": {
+    "imagePath": "RiceCakeSoup",
+    "effect": "CD",
+    "range": "10%"
+  },
+  "Cold Jellyfish Salad": { 
+    "imagePath": "ColdJellyfishSalad",
+    "effect": "BA",
+    "range": "20%"
+  },
+  "Escargot": { 
+    "imagePath": "Escargot",
+    "effect": "MD",
+    "range": "20%"
+  },
+  "Noodle Soup With Mushroom": { 
+    "imagePath": "NoodleSoupWithMushroom",
+    "effect": "CR",
+    "range": "20%"
+  },
+  "Stir-Fried Pork": { 
+    "imagePath": "Stir-FriedPork",
+    "effect": "PD",
+    "range": "20%"
+  }
+}
