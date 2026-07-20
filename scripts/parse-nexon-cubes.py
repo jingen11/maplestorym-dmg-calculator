@@ -40,6 +40,10 @@ from bs4 import BeautifulSoup
 BASE = "https://m.nexon.com/probability/{}?language=en"
 
 # Page id -> equipment part, in the order they should appear in the UI.
+#
+# The ids are NOT contiguous and cannot be found by scanning a range:
+# 6445-6449 and 6453 are empty, and Earrings sits far away at 7242. Take
+# this list from Nexon's probability index rather than by probing.
 PAGES = OrderedDict(
     [
         (6438, "Weapon"),
@@ -56,6 +60,7 @@ PAGES = OrderedDict(
         (6456, "Mechanical Heart"),
         (6454, "Pendant"),
         (6455, "Ring"),
+        (7242, "Earrings"),
         (6457, "Pocket"),
     ]
 )
