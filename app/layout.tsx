@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Lilita_One, Nunito, Press_Start_2P } from "next/font/google";
+import CustomCursor from "@/components/CustomCursor";
 import { LogoLeafSprite } from "@/components/PixelSprites";
 import {
   SPREADSHEET_CREDITS,
@@ -98,6 +99,7 @@ export default function RootLayout({
       className={`${lilita.variable} ${nunito.variable} ${pixel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <CustomCursor />
         <header className="border-b-[3px] border-wood bg-panel">
           <nav className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
             <Link

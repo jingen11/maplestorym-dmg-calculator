@@ -25,6 +25,57 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+/* Custom MapleStory pointer. `--cursor-hover-frame` holds the current hover
+   image and is flipped between hover-1 and hover-2 on an interval by
+   <CustomCursor> so the pointer animates while over anything clickable.
+   Hotspot ~(2,2): every sprite points toward its top-left tip. */
+:root {
+  --cursor-hover-frame: url(/cursors/hover-1.png);
+}
+
+/* Base pointer on the root only — `cursor` inherits, so setting it on `*`
+   would override the hover cursor on children of buttons/links (their text
+   spans, icons) and break the hand on hover. */
+html {
+  cursor: url(/cursors/mouse.png) 2 2, auto;
+}
+
+/* Text fields show the custom pointer instead of the browser's I-beam */
+input:where(
+    [type="text"],
+    [type="number"],
+    [type="search"],
+    [type="email"],
+    [type="password"],
+    [type="url"],
+    [type="tel"]
+  ),
+textarea {
+  cursor: url(/cursors/mouse.png) 2 2, text;
+}
+
+a,
+button,
+label,
+summary,
+select,
+[role="button"],
+[role="tab"],
+[role="link"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+input[type="submit"],
+input[type="button"] {
+  cursor: var(--cursor-hover-frame) 2 2, pointer;
+}
+
+/* Disabled controls fall back to the plain pointer, not the "click me" hand */
+:disabled,
+[aria-disabled="true"] {
+  cursor: url(/cursors/mouse.png) 2 2, not-allowed;
+}
+
 /* In-game floating damage numbers, MSM "New" effect. Each digit is its own
    span (see DamageNumber): gradient fill dark-at-top → light-at-bottom, a
    thin white outline (text-stroke), and a black line wrapping the white
