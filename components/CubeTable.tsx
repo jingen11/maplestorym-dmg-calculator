@@ -1,10 +1,19 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
+import Interpolate from "./Interpolate";
+import type { Dictionary } from "@/lib/i18n";
 import {
-  CUBE_NOTES,
+  cubeName,
+  cubeOptionName,
+  fill,
+  partName,
+  plural,
+  rankName,
+  type Terms,
+} from "@/lib/i18n";
+import {
   CUBE_PARTS,
-  CUBE_SOURCE_LABEL,
   cubeChance,
   cubesFor,
   getLines,
@@ -25,12 +34,15 @@ const fmt = (n: number, digits = 2) =>
     maximumFractionDigits: digits,
   });
 
-const POOL_LABEL: Record<Pool, string> = {
-  first: "1st line",
-  second: "2nd / 3rd line",
-};
-
-export default function CubeTable() {
+export default function CubeTable({
+  dict,
+  common,
+  terms,
+}: {
+  dict: Dictionary["cubes"];
+  common: Dictionary["common"];
+  terms: Terms;
+}) {
   const [part, setPart] = useState(CUBE_PARTS[0]);
   const [kind, setKind] = useState<CubeKind>("potential");
   const [rank, setRank] = useState<Rank>("Legendary");
@@ -38,6 +50,11 @@ export default function CubeTable() {
   const [lineCount, setLineCount] = useState(3);
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<Set<string>>(new Set());
+
+  const poolLabel: Record<Pool, string> = {
+    first: dict.poolFirst,
+    second: dict.poolSecond,
+  };
 
   /* Pendant, Ring and Pocket have no bonus potential at all, so fall back
      rather than render an empty table if the part changes underneath. */
@@ -57,12 +74,17 @@ export default function CubeTable() {
   );
   const shown = pool === "first" ? firstLines : secondLines;
 
+  /* Matches the localized option name as well as the English source name,
+     so a player who knows the in-game English term can still search it. */
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q
-      ? shown.filter((l) => l.option.toLowerCase().includes(q))
-      : shown;
-  }, [shown, query]);
+    if (!q) return shown;
+    return shown.filter(
+      (l) =>
+        cubeOptionName(terms, l.option).toLowerCase().includes(q) ||
+        l.option.toLowerCase().includes(q),
+    );
+  }, [shown, query, terms]);
 
   const firstChance = selectedChance(firstLines, picked);
   const secondChance = selectedChance(secondLines, picked);
@@ -104,50 +126,59 @@ export default function CubeTable() {
     }`;
 
   return (
-    <section aria-label="Cube probabilities" className="space-y-6">
+    <section aria-label={dict.ariaTable} className="space-y-6">
       <div
         className="stage sticky top-2 z-20 px-3 py-3 backdrop-blur-md sm:px-5 sm:py-4 md:top-4"
         aria-live="polite"
       >
         <div className="grid grid-cols-2 items-start gap-3 divide-x-2 divide-wood-light/40 sm:gap-6 sm:divide-x-0 md:grid-cols-4">
           <div className="min-w-0 text-center">
-            <p className="stage-label">On this line</p>
+            <p className="stage-label">{dict.onThisLine}</p>
             <p className="mt-1 font-display text-xl text-ink sm:text-2xl">
               {fmt(poolChance)}%
             </p>
           </div>
           <div className="min-w-0 text-center">
-            <p className="stage-label">Per cube</p>
+            <p className="stage-label">{dict.perCube}</p>
             <p className="mt-1 font-display text-xl text-maple-deep sm:text-2xl">
               {fmt(perCube)}%
             </p>
           </div>
           <div className="min-w-0 text-center">
-            <p className="stage-label">Cubes for 50%</p>
+            <p className="stage-label">{dict.for50}</p>
             <p className="mt-1 font-display text-xl text-ink sm:text-2xl">
-              {need50 ?? "—"}
+              {need50 ?? common.dash}
             </p>
           </div>
           <div className="min-w-0 text-center">
-            <p className="stage-label">Cubes for 90%</p>
+            <p className="stage-label">{dict.for90}</p>
             <p className="mt-1 font-display text-xl text-ink sm:text-2xl">
-              {need90 ?? "—"}
+              {need90 ?? common.dash}
             </p>
           </div>
         </div>
         <p className="mt-2 text-center text-[11px] font-semibold text-sky-ink">
           {picked.size === 0 ? (
-            <>Tap the lines you want. Picks apply to both pools.</>
+            dict.tapHint
           ) : (
             <>
-              {picked.size} line{picked.size === 1 ? "" : "s"} selected · 1st{" "}
-              {fmt(firstChance)}% · 2nd/3rd {fmt(secondChance)}%
+              {fill(
+                plural(picked.size, {
+                  one: dict.selectedOne,
+                  other: dict.selectedOther,
+                }),
+                {
+                  count: picked.size,
+                  first: fmt(firstChance),
+                  second: fmt(secondChance),
+                },
+              )}
               <button
                 type="button"
                 onClick={() => setPicked(new Set())}
                 className="ml-2 underline underline-offset-2 hover:text-maple-deep"
               >
-                clear
+                {common.clear}
               </button>
             </>
           )}
@@ -155,10 +186,12 @@ export default function CubeTable() {
       </div>
 
       <div className="window">
-        <h2 className="window-title text-base">Cube setup</h2>
+        <h2 className="window-title text-base">{dict.setup}</h2>
         <div className="space-y-4 p-4">
           <div>
-            <p className="stage-label mb-2 text-ink-soft">Equipment part</p>
+            <p className="stage-label mb-2 text-ink-soft">
+              {common.equipmentPart}
+            </p>
             <div className="flex flex-wrap gap-2">
               {CUBE_PARTS.map((name) => (
                 <button
@@ -168,7 +201,7 @@ export default function CubeTable() {
                   aria-pressed={part === name}
                   className={pill(part === name)}
                 >
-                  {name}
+                  {partName(terms, name)}
                 </button>
               ))}
             </div>
@@ -176,7 +209,7 @@ export default function CubeTable() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="stage-label mb-2 text-ink-soft">Cube type</p>
+              <p className="stage-label mb-2 text-ink-soft">{dict.cubeType}</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -184,7 +217,7 @@ export default function CubeTable() {
                   aria-pressed={activeKind === "potential"}
                   className={pill(activeKind === "potential")}
                 >
-                  Potential
+                  {dict.potential}
                 </button>
                 <button
                   type="button"
@@ -193,18 +226,18 @@ export default function CubeTable() {
                   aria-pressed={activeKind === "bonus"}
                   className={pill(activeKind === "bonus", !bonusAvailable)}
                 >
-                  Bonus Potential
+                  {dict.bonusPotential}
                 </button>
               </div>
               {!bonusAvailable && (
                 <p className="mt-1 text-[11px] font-semibold text-ink-soft">
-                  {part} has no bonus potential.
+                  {fill(dict.noBonus, { part: partName(terms, part) })}
                 </p>
               )}
             </div>
 
             <div>
-              <p className="stage-label mb-2 text-ink-soft">Potential rank</p>
+              <p className="stage-label mb-2 text-ink-soft">{dict.rank}</p>
               <div className="flex flex-wrap gap-2">
                 {RANKS.map((name) => (
                   <button
@@ -214,7 +247,7 @@ export default function CubeTable() {
                     aria-pressed={rank === name}
                     className={pill(rank === name)}
                   >
-                    {name}
+                    {rankName(terms, name)}
                   </button>
                 ))}
               </div>
@@ -223,7 +256,9 @@ export default function CubeTable() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="stage-label mb-2 text-ink-soft">Showing pool</p>
+              <p className="stage-label mb-2 text-ink-soft">
+                {dict.showingPool}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {(["first", "second"] as Pool[]).map((p) => (
                   <button
@@ -233,7 +268,7 @@ export default function CubeTable() {
                     aria-pressed={pool === p}
                     className={pill(pool === p)}
                   >
-                    {POOL_LABEL[p]}
+                    {poolLabel[p]}
                   </button>
                 ))}
               </div>
@@ -241,7 +276,7 @@ export default function CubeTable() {
 
             <div>
               <p className="stage-label mb-2 text-ink-soft">
-                Lines on your item
+                {dict.linesOnItem}
               </p>
               <div className="flex flex-wrap gap-2">
                 {[1, 2, 3].map((n) => (
@@ -252,7 +287,10 @@ export default function CubeTable() {
                     aria-pressed={lineCount === n}
                     className={pill(lineCount === n)}
                   >
-                    {n} line{n === 1 ? "" : "s"}
+                    {plural(n, {
+                      one: dict.lineCountOne,
+                      other: dict.lineCountOther,
+                    })}
                   </button>
                 ))}
               </div>
@@ -264,14 +302,14 @@ export default function CubeTable() {
               htmlFor="cube-search"
               className="stage-label mb-2 block text-ink-soft"
             >
-              Filter options
+              {common.filterOptions}
             </label>
             <input
               id="cube-search"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. PHY ATK, Boss, Crit"
+              placeholder={dict.searchPlaceholder}
               className="w-full rounded-lg border-2 border-wood-light bg-panel-deep px-3 py-2 font-bold text-ink transition focus:border-maple"
             />
           </div>
@@ -280,20 +318,24 @@ export default function CubeTable() {
 
       <div className="window">
         <h2 className="window-title text-base">
-          {part} — {rank} · {POOL_LABEL[pool]}
+          {fill(dict.tableTitle, {
+            part: partName(terms, part),
+            rank: rankName(terms, rank),
+            pool: poolLabel[pool],
+          })}
         </h2>
         <div className="max-h-[32rem] overflow-y-auto">
           <table className="w-full border-collapse text-xs">
             <thead className="sticky top-0 z-10 bg-panel-deep">
               <tr className="border-b-2 border-wood-light/60">
                 <th className="stage-label px-3 py-2 text-left text-ink-soft">
-                  Option
+                  {common.option}
                 </th>
                 <th className="stage-label px-2 py-2 text-right text-ink-soft">
-                  Value
+                  {dict.value}
                 </th>
                 <th className="stage-label px-3 py-2 text-right text-ink-soft">
-                  Chance
+                  {dict.chance}
                 </th>
               </tr>
             </thead>
@@ -302,6 +344,7 @@ export default function CubeTable() {
                 const keys = lines.map(lineKey);
                 const allOn = keys.every((k) => picked.has(k));
                 const optionTotal = lines.reduce((s, l) => s + l.prob, 0);
+                const label = cubeOptionName(terms, option);
                 return (
                   <Fragment key={option}>
                     <tr className="border-y border-wood-light/40 bg-panel-deep/60">
@@ -310,15 +353,18 @@ export default function CubeTable() {
                           type="button"
                           onClick={() => toggle(keys)}
                           aria-pressed={allOn}
-                          className={`text-xs font-bold transition hover:text-maple-deep ${
+                          className={`text-left text-xs font-bold transition hover:text-maple-deep ${
                             allOn ? "text-maple-deep" : "text-ink"
                           }`}
                         >
-                          {option}
+                          {label}
                         </button>
                       </th>
                       <td className="px-2 py-1.5 text-right text-[11px] text-ink-soft">
-                        {lines.length} value{lines.length === 1 ? "" : "s"}
+                        {plural(lines.length, {
+                          one: dict.valueCountOne,
+                          other: dict.valueCountOther,
+                        })}
                       </td>
                       <td className="px-3 py-1.5 text-right font-bold tabular-nums text-sky-ink">
                         {fmt(optionTotal)}%
@@ -336,7 +382,11 @@ export default function CubeTable() {
                               type="button"
                               onClick={() => toggle([lineKey(line)])}
                               aria-pressed={on}
-                              aria-label={`${option} ${line.value}, ${line.prob}% chance`}
+                              aria-label={fill(dict.cellAria, {
+                                option: label,
+                                value: line.value,
+                                prob: line.prob,
+                              })}
                               className={`w-full rounded px-2 py-1 text-left tabular-nums transition ${
                                 on
                                   ? "bg-maple/15 font-bold text-ink"
@@ -365,7 +415,7 @@ export default function CubeTable() {
                     colSpan={3}
                     className="px-3 py-6 text-center text-ink-soft"
                   >
-                    No options match “{query}”.
+                    {fill(common.noMatch, { query })}
                   </td>
                 </tr>
               )}
@@ -373,13 +423,15 @@ export default function CubeTable() {
           </table>
         </div>
         <p className="border-t-2 border-wood-light/50 px-3 py-2 text-[11px] font-semibold text-ink-soft">
-          {shown.length} lines in this pool, totalling {fmt(poolTotal)}%.
-          Nexon rounds each entry to two decimals.
+          {fill(dict.tableFootnote, {
+            count: shown.length,
+            total: fmt(poolTotal),
+          })}
         </p>
       </div>
 
       <div className="window">
-        <h2 className="window-title text-base">Rank-up chance per cube</h2>
+        <h2 className="window-title text-base">{dict.rankUpTitle}</h2>
         <div className="p-4">
           <dl className="space-y-1.5 text-xs">
             {Object.entries(RANK_UP[activeKind]).map(([cube, chance]) => (
@@ -387,46 +439,49 @@ export default function CubeTable() {
                 key={cube}
                 className="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-wood-light/30 pb-1.5 last:border-0"
               >
-                <dt className="text-ink-soft">{cube}</dt>
+                <dt className="text-ink-soft">{cubeName(terms, cube)}</dt>
                 <dd className="font-bold tabular-nums text-ink">
-                  {fmt(chance, 0)}% rank up ·{" "}
+                  {fill(dict.rankUpRow, { chance: fmt(chance, 0) })}
                   <span className="text-maple-deep">
-                    {cubesFor(chance, 50)} cubes
+                    {fill(dict.rankUpCubes, {
+                      count: cubesFor(chance, 50) ?? common.dash,
+                    })}
                   </span>{" "}
-                  for a coin flip
+                  {common.forACoinFlip}
                 </dd>
               </div>
             ))}
           </dl>
           <p className="mt-3 text-[11px] leading-relaxed text-ink-soft">
-            Ranking up is a separate roll from the option lines — these cubes
-            differ only in rank-up chance and function, never in the option
-            probabilities.
+            {dict.rankUpNote}
           </p>
         </div>
       </div>
 
       <div className="window">
-        <h2 className="window-title text-base">Notes</h2>
+        <h2 className="window-title text-base">{common.notes}</h2>
         <ul className="space-y-1.5 p-4 text-xs leading-relaxed text-ink-soft">
-          {CUBE_NOTES.map((note) => (
+          {dict.dataNotes.map((note) => (
             <li key={note}>• {note}</li>
           ))}
+          <li>• {dict.noteIndependent}</li>
           <li>
-            • “Per cube” assumes the lines roll independently — Nexon does not
-            disclose whether one line can repeat another.
-          </li>
-          <li>
-            • Data from{" "}
-            <a
-              href={sourceUrl(part)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-maple-deep underline underline-offset-2"
-            >
-              {CUBE_SOURCE_LABEL} ({part})
-            </a>
-            .
+            •{" "}
+            <Interpolate
+              template={dict.noteSource}
+              vars={{
+                link: (
+                  <a
+                    href={sourceUrl(part)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-maple-deep underline underline-offset-2"
+                  >
+                    {dict.sourceLabel} ({partName(terms, part)})
+                  </a>
+                ),
+              }}
+            />
           </li>
         </ul>
       </div>

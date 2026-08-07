@@ -6,12 +6,16 @@ import type { ModifiableStat } from "./damage";
 import foodJson from "./data/food.json";
 
 export interface FoodItem {
+  /** English name, also the lookup key for the localized name. */
   name: string;
   imagePath: string;
   /** Effect code from food.json: PA, MA, BA, PD, MD, CR, CD */
   effect: string;
   stat: ModifiableStat;
   percent: number;
+  /** Magnitude as printed, e.g. "50%" — identical in every locale. */
+  range: string;
+  /** English stat label, the lookup key for the localized effect label. */
   effectLabel: string;
   stackable: boolean;
 }
@@ -43,7 +47,8 @@ export const FOOD_ITEMS: FoodItem[] = Object.entries(foodJson).map(
       effect: def.effect,
       stat: effect.stat,
       percent: parseFloat(def.range),
-      effectLabel: `+${def.range} ${effect.label}`,
+      range: def.range,
+      effectLabel: effect.label,
       stackable: STACKABLE_FOODS.has(name),
     };
   },

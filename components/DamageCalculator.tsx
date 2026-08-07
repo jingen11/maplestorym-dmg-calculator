@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { FOOD_IMAGES } from "./foodImages";
 import { SwordSprite, WandSprite } from "./PixelSprites";
+import type { Dictionary } from "@/lib/i18n";
+import { fill, foodEffectLabel, foodName, type Terms } from "@/lib/i18n";
 import {
   EXCLUSIVE_FOODS,
   FOOD_ITEMS,
@@ -22,55 +24,25 @@ import {
   type ModifiableStat,
 } from "@/lib/damage";
 
+type DamageDict = Dictionary["damage"];
+type FieldKey = keyof DamageDict["fields"];
+type FieldText = Record<FieldKey, string>;
+
 interface NumberField {
-  key: keyof Omit<DamageInputs, "targetIsBoss" | "nodeIed" | "defenseSmash4">;
-  label: string;
+  key: FieldKey;
   suffix?: string;
-  hint: string;
 }
 
+/* Which fields go in which section, and which carry a % suffix. The label
+   and hint come from the dictionary, keyed by the same `key`. */
 const statFields: Array<NumberField & { key: ModifiableStat }> = [
-  {
-    key: "physAtk",
-    label: "Phys Atk",
-    hint: "Flat Phys/Mag Atk from the stat window",
-  },
-  {
-    key: "atkPercent",
-    label: "Phys/Mag Atk",
-    suffix: "%",
-    hint: "Total Phys/Mag Atk % from the stat window",
-  },
-  {
-    key: "dmgPercent",
-    label: "Phys/Mag Dmg",
-    suffix: "%",
-    hint: "Total Phys/Mag Dmg % from the stat window",
-  },
-  {
-    key: "bossAtkPercent",
-    label: "Boss Atk",
-    suffix: "%",
-    hint: "Only applies when the target is a boss",
-  },
-  {
-    key: "critRatePercent",
-    label: "Crit Rate",
-    suffix: "%",
-    hint: "Chance to land a critical hit (max 100%)",
-  },
-  {
-    key: "critDmgPercent",
-    label: "Crit Dmg",
-    suffix: "%",
-    hint: "Bonus damage on critical hits",
-  },
-  {
-    key: "finalDmgPercent",
-    label: "Final Dmg",
-    suffix: "%",
-    hint: "Total Final Dmg % from the stat window",
-  },
+  { key: "physAtk" },
+  { key: "atkPercent", suffix: "%" },
+  { key: "dmgPercent", suffix: "%" },
+  { key: "bossAtkPercent", suffix: "%" },
+  { key: "critRatePercent", suffix: "%" },
+  { key: "critDmgPercent", suffix: "%" },
+  { key: "finalDmgPercent", suffix: "%" },
 ];
 
 /* In the My stats grid but not in statFields: the Modifiers window mirrors
@@ -78,18 +50,20 @@ const statFields: Array<NumberField & { key: ModifiableStat }> = [
    sources stack multiplicatively via finalDefIgnoreRate. */
 const statDirField: NumberField = {
   key: "statDefIgnoreRatePercent",
-  label: "Def Ignore Rate",
   suffix: "%",
-  hint: "From the stat window — stacks with node DIR sources",
 };
 
-const modifierFields = statFields.map((field) => ({
-  ...field,
-  hint: `Added on top of your base ${field.label}`,
-}));
+const levelFields: NumberField[] = [
+  { key: "characterLevel" },
+  { key: "monsterLevel" },
+  { key: "bossPdrPercent", suffix: "%" },
+  { key: "monsterCritResPercent", suffix: "%" },
+];
 
-type FieldKey = NumberField["key"];
-type FieldText = Record<FieldKey, string>;
+const skillFields: NumberField[] = [
+  { key: "skillPercent", suffix: "%" },
+  { key: "skillFinalDmgPercent", suffix: "%" },
+];
 
 const numberFieldKeys = (
   Object.keys(DEFAULT_INPUTS) as Array<keyof DamageInputs>
@@ -128,46 +102,6 @@ interface StoredState {
   exclusiveFoods?: Partial<Record<ModifiableStat, string>>;
   stackedFoods?: Record<string, boolean>;
 }
-
-const levelFields: NumberField[] = [
-  {
-    key: "characterLevel",
-    label: "Character Level",
-    hint: "Your current level",
-  },
-  {
-    key: "monsterLevel",
-    label: "Monster Level",
-    hint: "Higher-level monsters reduce your damage",
-  },
-  {
-    key: "bossPdrPercent",
-    label: "Boss Defense (PDR)",
-    suffix: "%",
-    hint: "Damage the boss's defense removes — reduced by Def Ignore Rate",
-  },
-  {
-    key: "monsterCritResPercent",
-    label: "Monster Crit Resistance",
-    suffix: "%",
-    hint: "Subtracts from your Crit Rate before the 100% cap",
-  },
-];
-
-const skillFields: NumberField[] = [
-  {
-    key: "skillPercent",
-    label: "Skill Dmg",
-    suffix: "%",
-    hint: "Damage % of the skill line you are testing",
-  },
-  {
-    key: "skillFinalDmgPercent",
-    label: "Final Dmg",
-    suffix: "%",
-    hint: "From the skill's enhancement — enter the value at your level",
-  },
-];
 
 /* Jagged starburst flash behind the front of a crit number, like the
    in-game crit effect. Outline traced from the game (app/path.svg),
@@ -245,7 +179,13 @@ function subSize(value: number) {
   return "text-base sm:text-lg md:text-xl";
 }
 
-export default function DamageCalculator() {
+export default function DamageCalculator({
+  dict,
+  terms,
+}: {
+  dict: DamageDict;
+  terms: Terms;
+}) {
   const [fields, setFields] = useState<FieldText>(initialFieldText);
   const [mods, setMods] = useState<Record<ModifiableStat, string>>(
     ZERO_MOD_TEXT,
@@ -424,22 +364,34 @@ export default function DamageCalculator() {
   const setMod = (key: ModifiableStat, value: string) =>
     setMods((prev) => ({ ...prev, [key]: value }));
 
-  // Swap Phys/Mag wording to match the attack-type switch
-  const typedText = (text: string) =>
-    isMag
-      ? text.replace("Phys/Mag", "Mag").replace(/^(Flat )?Phys\b/, "$1Mag")
-      : text.replace("Phys/Mag", "Phys");
+  /* Swap the stat wording to match the attack-type switch. Both forms come
+     from the dictionary so this works in every locale: `pair` is the
+     "either" wording inside most labels ("Phys/Mag Atk", "物理/魔法攻击力"),
+     `solo` is the flat-attack label, which names one type outright.
+     Pair first — collapsing it can produce the solo form. */
+  const { attackType } = dict;
+  const typedText = (text: string) => {
+    const swapped = text.replaceAll(
+      attackType.pair,
+      isMag ? attackType.pairMag : attackType.pairPhys,
+    );
+    return isMag
+      ? swapped.replaceAll(attackType.soloPhys, attackType.soloMag)
+      : swapped;
+  };
 
   const renderField = (
     field: NumberField,
+    label: string,
+    hint: string,
     value: string,
     onValue: (value: string) => void,
   ) => (
     <label key={field.key} className="block">
-      <span className="mb-1 flex items-baseline justify-between text-sm font-bold text-ink">
-        {typedText(field.label)}
+      <span className="mb-1 flex items-baseline justify-between gap-2 text-sm font-bold text-ink">
+        {typedText(label)}
         {field.suffix && (
-          <span className="text-xs text-ink-soft">{field.suffix}</span>
+          <span className="shrink-0 text-xs text-ink-soft">{field.suffix}</span>
         )}
       </span>
       <input
@@ -452,14 +404,27 @@ export default function DamageCalculator() {
         className="w-full rounded-lg border-2 border-wood-light bg-panel-deep px-3 py-2 font-bold text-ink tabular-nums transition focus:border-maple"
       />
       <span className="mt-1 block text-xs text-ink-soft">
-        {typedText(field.hint)}
+        {typedText(hint)}
       </span>
     </label>
   );
 
   const renderInputField = (field: NumberField) =>
-    renderField(field, fields[field.key], (value) =>
-      setField(field.key, value),
+    renderField(
+      field,
+      dict.fields[field.key].label,
+      dict.fields[field.key].hint,
+      fields[field.key],
+      (value) => setField(field.key, value),
+    );
+
+  const renderModifierField = (field: NumberField & { key: ModifiableStat }) =>
+    renderField(
+      field,
+      dict.fields[field.key].label,
+      fill(dict.modifierHint, { label: dict.fields[field.key].label }),
+      mods[field.key],
+      (value) => setMod(field.key, value),
     );
 
   const toggleFood = (item: FoodItem) => {
@@ -494,10 +459,10 @@ export default function DamageCalculator() {
         />
         <span className="min-w-0">
           <span className="block truncate text-xs font-bold text-ink">
-            {item.name}
+            {foodName(terms, item.name)}
           </span>
           <span className="block text-[11px] text-ink-soft">
-            {item.effectLabel}
+            {foodEffectLabel(terms, item.range, item.effectLabel)}
           </span>
         </span>
       </button>
@@ -510,12 +475,14 @@ export default function DamageCalculator() {
   const renderDamagePanel = (
     title: string,
     shortTitle: string,
-    result: DamageResult
+    result: DamageResult,
   ) => (
     <div className="min-w-0 text-center">
       <p className="stage-label">
         <span className="sm:hidden">{shortTitle}</span>
-        <span className="hidden sm:inline">{title} — average hit</span>
+        <span className="hidden sm:inline">
+          {fill(dict.averageHit, { target: title })}
+        </span>
       </p>
       <p className="mt-1 sm:mt-2">
         <DamageNumber
@@ -528,11 +495,11 @@ export default function DamageCalculator() {
         {result.nonCritHit.toLocaleString()} –{" "}
         {result.critHitMax.toLocaleString()}
       </p>
-      <p className="stage-label hidden sm:block">lower – upper bound</p>
+      <p className="stage-label hidden sm:block">{dict.bounds}</p>
 
       <div className="mt-2 flex items-start justify-center gap-3 sm:mt-3 sm:gap-8">
         <div>
-          <p className="stage-label">Normal</p>
+          <p className="stage-label">{dict.normal}</p>
           <p className="mt-1 sm:mt-2">
             <DamageNumber
               key={result.nonCritHit}
@@ -542,7 +509,7 @@ export default function DamageCalculator() {
           </p>
         </div>
         <div>
-          <p className="stage-label">Critical</p>
+          <p className="stage-label">{dict.critical}</p>
           <p className="mt-1 text-base sm:mt-2 sm:text-lg md:text-xl">
             <span className="relative inline-block">
               <CritBang className="absolute -left-[0.45em] -top-1 h-[0.95em] w-[0.95em]" />
@@ -558,7 +525,7 @@ export default function DamageCalculator() {
             {result.critHitMin.toLocaleString()} –{" "}
             {result.critHitMax.toLocaleString()}
           </p>
-          <p className="stage-label hidden sm:block">min – max roll</p>
+          <p className="stage-label hidden sm:block">{dict.critRoll}</p>
         </div>
       </div>
     </div>
@@ -568,17 +535,17 @@ export default function DamageCalculator() {
     result.stages && (
       <details className="mt-3 text-left">
         <summary className="stage-label cursor-pointer text-center">
-          Boss damage breakdown
+          {dict.breakdown}
         </summary>
         <div className="mx-auto mt-2 grid max-w-xs grid-cols-[1fr_auto_auto] gap-x-4 gap-y-0.5 text-xs text-sky-ink">
           <span />
-          <span className="stage-label text-right">Normal</span>
-          <span className="stage-label text-right">Crit</span>
+          <span className="stage-label text-right">{dict.normal}</span>
+          <span className="stage-label text-right">{dict.crit}</span>
           {(
             [
-              ["Raw formula", result.stages.preLevel],
-              ["After level modifier", result.stages.postLevel],
-              ["After boss defense (IED)", result.stages.postIed],
+              [dict.stageRaw, result.stages.preLevel],
+              [dict.stageLevel, result.stages.postLevel],
+              [dict.stageIed, result.stages.postIed],
             ] as const
           ).map(([label, line]) => (
             <Fragment key={label}>
@@ -596,40 +563,41 @@ export default function DamageCalculator() {
     );
 
   return (
-    <section aria-label="Damage calculator" className="space-y-6">
+    <section aria-label={dict.ariaCalculator} className="space-y-6">
       <div
         className="stage sticky top-2 z-20 px-3 py-3 backdrop-blur-md sm:px-5 sm:py-4 md:top-4"
         aria-live="polite"
       >
         <div className="grid grid-cols-2 items-start gap-3 divide-x-2 divide-wood-light/40 sm:gap-6 sm:divide-x-0">
-          {renderDamagePanel("Normal monsters", "Normal", mobResult)}
-          {renderDamagePanel("Boss", "Boss", bossResult)}
+          {renderDamagePanel(dict.panelMob, dict.panelMobShort, mobResult)}
+          {renderDamagePanel(dict.panelBoss, dict.panelBossShort, bossResult)}
         </div>
         {renderBossBreakdown(bossResult)}
       </div>
 
       <div className="window">
-        <h2 className="window-title text-lg">Character setup</h2>
+        <h2 className="window-title text-lg">{dict.setup}</h2>
         <div className="divide-y-2 divide-wood-light/50">
-          <section className="p-5" aria-label="My stats">
-            <div className="mb-4 flex items-center justify-between">
+          <section className="p-5" aria-label={dict.myStats}>
+            <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <h3 className="font-display text-base text-ink">My stats</h3>
+                <h3 className="font-display text-base text-ink">
+                  {dict.myStats}
+                </h3>
                 <p className="text-xs text-ink-soft">
-                  {isMag ? "Magical class" : "Physical class"}
+                  {isMag ? dict.magicalClass : dict.physicalClass}
                 </p>
                 <p className="mt-1 text-xs text-ink-soft">
-                  Input base stats here. Exclude any food buffs &amp; party
-                  buffs. Include self buffs.
+                  {dict.myStatsHint}
                 </p>
               </div>
               <button
                 type="button"
                 role="switch"
                 aria-checked={isMag}
-                aria-label="Toggle between physical and magical attack"
+                aria-label={dict.toggleAria}
                 onClick={() => setIsMag((prev) => !prev)}
-                className="relative inline-flex h-11 w-[5.5rem] items-center rounded-full border-2 border-wood bg-panel-deep shadow-[0_2px_0_rgba(67,48,31,0.25)] transition"
+                className="relative inline-flex h-11 w-[5.5rem] shrink-0 items-center rounded-full border-2 border-wood bg-panel-deep shadow-[0_2px_0_rgba(67,48,31,0.25)] transition"
               >
                 <span
                   aria-hidden
@@ -655,15 +623,19 @@ export default function DamageCalculator() {
             </div>
           </section>
 
-          <section className="p-5" aria-label="Skill">
-            <h3 className="mb-4 font-display text-base text-ink">Skill</h3>
+          <section className="p-5" aria-label={dict.skill}>
+            <h3 className="mb-4 font-display text-base text-ink">
+              {dict.skill}
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {skillFields.map(renderInputField)}
             </div>
           </section>
 
-          <section className="p-5" aria-label="Nodes">
-            <h3 className="mb-4 font-display text-base text-ink">Nodes</h3>
+          <section className="p-5" aria-label={dict.nodes}>
+            <h3 className="mb-4 font-display text-base text-ink">
+              {dict.nodes}
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-wood-light bg-panel-deep px-3 py-2">
                 <input
@@ -674,12 +646,10 @@ export default function DamageCalculator() {
                 />
                 <span>
                   <span className="block text-sm font-bold text-ink">
-                    Node IED
+                    {dict.nodeIed}
                   </span>
                   <span className="block text-xs text-ink-soft">
-                    +15% Def Ignore Rate — activates once the skill&apos;s
-                    node reaches Lv 40. Check this only if your node is Lv
-                    40 or above.
+                    {dict.nodeIedHint}
                   </span>
                 </span>
               </label>
@@ -692,63 +662,53 @@ export default function DamageCalculator() {
                 />
                 <span>
                   <span className="block text-sm font-bold text-ink">
-                    Defense Smash 4
+                    {dict.defenseSmash4}
                   </span>
                   <span className="block text-xs text-ink-soft">
-                    +25% Def Ignore Rate
+                    {dict.defenseSmash4Hint}
                   </span>
                 </span>
               </label>
             </div>
             <p className="mt-4 text-xs text-ink-soft">
-              Final Def Ignore Rate:{" "}
+              {dict.finalDir}{" "}
               <span className="font-bold text-ink tabular-nums">
                 {(totalDir * 100).toFixed(2)}%
               </span>{" "}
-              — sources stack multiplicatively, then reduce the boss&apos;s
-              defense (PDR).
+              {dict.finalDirHint}
             </p>
           </section>
 
-          <section className="p-5" aria-label="Target">
-            <h3 className="font-display text-base text-ink">Target</h3>
+          <section className="p-5" aria-label={dict.target}>
+            <h3 className="font-display text-base text-ink">{dict.target}</h3>
             <p className="mb-4 mt-1 text-xs text-ink-soft">
-              These only affect the boss damage — mob damage skips the level
-              and defense reductions.
+              {dict.targetHint}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {levelFields.map(renderInputField)}
             </div>
           </section>
 
-          <section className="p-5" aria-label="Modifiers">
-            <h3 className="font-display text-base text-ink">Modifiers</h3>
+          <section className="p-5" aria-label={dict.modifiers}>
+            <h3 className="font-display text-base text-ink">
+              {dict.modifiers}
+            </h3>
             <p className="mb-4 mt-1 text-xs text-ink-soft">
-              Hyper skill bonuses only, stacked on top of your base stats.
-              Self and party buffs belong in your base stats; food gets its
-              own section.
+              {dict.modifiersHint}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {modifierFields.map((field) =>
-                renderField(field, mods[field.key], (value) =>
-                  setMod(field.key, value),
-                ),
-              )}
+              {statFields.map(renderModifierField)}
             </div>
           </section>
 
-          <section className="p-5" aria-label="Food">
-            <h3 className="font-display text-base text-ink">Food</h3>
-            <p className="mb-3 mt-1 text-xs text-ink-soft">
-              Regular food buffs are mutually exclusive per effect — picking
-              a second food of the same stat replaces the first. Different
-              stats can be combined.
-            </p>
+          <section className="p-5" aria-label={dict.food}>
+            <h3 className="font-display text-base text-ink">{dict.food}</h3>
+            <p className="mb-3 mt-1 text-xs text-ink-soft">{dict.foodHint}</p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {EXCLUSIVE_FOODS.filter(foodVisible).map(renderFoodCard)}
             </div>
             <p className="mb-3 mt-5 text-xs text-ink-soft">
-              These stack with the regular buff and with each other.
+              {dict.foodStackHint}
             </p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {STACKABLE_FOOD_ITEMS.filter(foodVisible).map(renderFoodCard)}

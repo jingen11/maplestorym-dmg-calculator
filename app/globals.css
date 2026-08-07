@@ -25,6 +25,55 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+/* Lilita One (display) and Nunito (body) cover Latin, Latin-Ext and
+   Vietnamese but have no Thai or Han glyphs, so those locales would fall
+   back to whatever the device has. Swapping the two font variables here
+   redirects every rule that reads them — body text, .window-title,
+   .stage-label — to a face that can actually render the script.
+
+   The damage digits (.dmg-text) deliberately keep Lilita One: they only
+   ever contain 0-9, and the chunky in-game look is the point. */
+html[lang="th"] {
+  --font-sans: var(--font-noto-thai);
+  --font-display: var(--font-noto-thai);
+  --font-nunito: var(--font-noto-thai);
+}
+
+html[lang="zh-Hans"] {
+  --font-sans: var(--font-noto-sc);
+  --font-display: var(--font-noto-sc);
+  --font-nunito: var(--font-noto-sc);
+}
+
+/* Tailwind's `font-display` utility is declared with @theme *inline*, so it
+   compiles to the literal `var(--font-lilita)` and never reads
+   --font-display. Overriding --font-lilita instead would drag the damage
+   digits along with it, so the utility is redirected here by hand. */
+html[lang="th"] .font-display {
+  font-family: var(--font-noto-thai), sans-serif;
+}
+
+html[lang="zh-Hans"] .font-display {
+  font-family: var(--font-noto-sc), sans-serif;
+}
+
+/* Han and Thai headings need to sit heavier to match Lilita One's weight */
+html[lang="th"] .window-title,
+html[lang="zh-Hans"] .window-title,
+html[lang="th"] .font-display,
+html[lang="zh-Hans"] .font-display {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+/* Uppercasing does nothing to Thai or Han and the wide tracking just
+   shreds the words apart */
+html[lang="th"] .stage-label,
+html[lang="zh-Hans"] .stage-label {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
 /* Custom MapleStory pointer. `--cursor-hover-frame` holds the current hover
    image and is flipped between hover-1 and hover-2 on an interval by
    <CustomCursor> so the pointer animates while over anything clickable.
@@ -83,7 +132,10 @@ input[type="button"] {
    fill so the digits stay fat. */
 .dmg-text,
 .dmg-text-crit {
-  font-family: var(--font-display), sans-serif;
+  /* Pinned to Lilita One rather than --font-display: these spans only ever
+     hold 0-9, and the Thai/Han locales repoint --font-display at a face
+     whose digits would lose the chunky in-game look. */
+  font-family: var(--font-lilita), sans-serif;
   letter-spacing: 0.02em;
   color: transparent;
   -webkit-background-clip: text;

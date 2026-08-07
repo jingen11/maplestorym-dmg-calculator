@@ -1,5 +1,4 @@
-// Central site config — update SITE_URL once you have a domain.
+// Central site config. The site description is per-locale and lives in
+// lib/i18n/dict/*.ts under `site.description`.
 export const SITE_URL = "https://maplestorym.com";
 export const SITE_NAME = "MapleStory M Toolbox";
-export const SITE_DESCRIPTION =
-  "Free tools for MapleStory M players. Damage calculator with mob and boss damage per hit, level-difference modifier, boss defense (IED) and food buffs, plus interactive Rebirth Flame and cube probability tables built from Nexon's official disclosures.";
