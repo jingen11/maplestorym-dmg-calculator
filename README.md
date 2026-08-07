@@ -20,6 +20,22 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Analytics
+
+Pageviews per route come from [Cloudflare Web Analytics](https://developers.cloudflare.com/web-analytics/)
+(free, cookieless, no consent banner). Nothing to configure — the site token
+lives in `lib/site.ts` and `npm run build` emits the beacon automatically.
+The token is a public site identifier, not a secret; it ships in the HTML of
+every page.
+
+`npm run dev` omits the beacon entirely, so local work never lands in the
+stats. To report into a different dashboard, override with
+`NEXT_PUBLIC_CF_BEACON_TOKEN=<token> npm run build`.
+
+The beacon tracks client-side route changes (it patches `history.pushState`),
+so navigation between tools counts as separate views — the traffic Search
+Console can't see, since it only reports Google organic clicks.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

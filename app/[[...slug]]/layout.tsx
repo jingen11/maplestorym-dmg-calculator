@@ -10,6 +10,7 @@ import {
 import CustomCursor from "@/components/CustomCursor";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LogoLeafSprite } from "@/components/PixelSprites";
+import WebAnalytics from "@/components/WebAnalytics";
 import { SPREADSHEET_CREDITS, SPREADSHEET_NAME } from "@/lib/credits";
 import {
   fill,
@@ -116,6 +117,7 @@ export default async function RootLayout({
       className={`${lilita.variable} ${nunito.variable} ${pixel.variable} ${notoThai.variable} ${notoSC.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <WebAnalytics />
         <CustomCursor />
         <header className="border-b-[3px] border-wood bg-panel">
           <nav className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">

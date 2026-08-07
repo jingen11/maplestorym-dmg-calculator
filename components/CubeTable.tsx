@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import Interpolate from "./Interpolate";
 import type { Dictionary } from "@/lib/i18n";
 import {
@@ -56,12 +56,11 @@ export default function CubeTable({
     second: dict.poolSecond,
   };
 
-  /* Pendant, Ring and Pocket have no bonus potential at all, so fall back
-     rather than render an empty table if the part changes underneath. */
+  /* Pendant, Ring and Pocket have no bonus potential at all, so the kind is
+     narrowed on the way out rather than written back to state: everything
+     below reads activeKind, so an empty table can never render, and the
+     user's actual choice survives a detour through a part that lacks it. */
   const bonusAvailable = hasBonus(part);
-  useEffect(() => {
-    if (!bonusAvailable && kind === "bonus") setKind("potential");
-  }, [bonusAvailable, kind]);
   const activeKind: CubeKind = bonusAvailable ? kind : "potential";
 
   const firstLines = useMemo(
