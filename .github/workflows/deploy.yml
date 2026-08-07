@@ -42,7 +42,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ap-southeast-1
+          aws-region: ap-southeast-5
 
       # The site stack uploads ../out, so this must run after the build.
       # Both stacks deploy together (the cert stack lives in us-east-1).
