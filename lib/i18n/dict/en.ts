@@ -24,7 +24,7 @@ const en = {
 
   credits: {
     Paulpork: "the damage formula",
-    "櫻櫻美代套子": "the initial buffed stats calculator",
+    櫻櫻美代套子: "the initial buffed stats calculator",
     KaitouKiddo: "the initial damage + emblem calculator",
     "殘風⎝( OωO)⎠": "crit rate and damage cap tests",
     Whaku: "the spreadsheet itself, plus crit rate tests",
@@ -232,6 +232,7 @@ const en = {
     perOptionSlot: "Per option slot",
     perFlame: "Per flame",
     perFlameAll: "All, per flame",
+    perFlameGroup: "Group, per flame",
     for50: "Flames for 50%",
     for90: "Flames for 90%",
     tapHint: "Tap any value below to pick the options you want.",
@@ -240,12 +241,24 @@ const en = {
     selectedAllOne: "Chasing {count} line · {two}% chance of a 2nd option",
     selectedAllOther:
       "Chasing {count} lines together · {two}% chance of a 2nd option",
+    selectedGroupOne:
+      "Chasing {count} option from {options} selected lines · {two}% chance of a 2nd option",
+    selectedGroupOther:
+      "Chasing {count} options from {options} selected lines · {two}% chance of a 2nd option",
     matchLabel: "What counts as a hit",
     matchAny: "Any of them",
     matchAll: "All of them",
+    matchGroup: "Count from group",
     matchAnyHint: "At least one selected line lands on the flame.",
     matchAllHint:
       "Every selected line lands on the same flame at once. Tap a value again to ask for it on both option slots — a flame can roll the same line twice.",
+    matchGroupHint:
+      "Your picks are one group, and only the number of options drawn from it counts — not which ones. Tick every line you would accept, ask for 2, and you get the odds of a flame where both options are useful.",
+    groupNeedLabel: "Options from the group",
+    groupNeedOne: "{count} option",
+    groupNeedOther: "{count} options",
+    groupNeedTwoHint:
+      "Both options from the group needs a two-option roll, so the tier's second-option chance caps this outright.",
     allImpossible:
       "A flame rolls at most 2 options, so {count} lines at once can never happen.",
     setup: "Flame setup",
@@ -291,8 +304,12 @@ const en = {
         body: "The card at the top updates live: your chance on one option slot, your real chance per flame, and how many flames it takes to reach a 50% or 90% cumulative shot.",
       },
       {
-        title: "Decide between any and all",
-        body: "“Any of them” — the default — counts a flame as a hit when at least one of your picks lands. “All of them” asks for every pick on the same flame, which needs a two-option roll; tapping a value again asks for that same line on both option slots. Both readings come from the same published tables.",
+        title: "Decide what counts as a hit",
+        body: "“Any of them” — the default — counts a flame as a hit when at least one of your picks lands. “All of them” asks for every pick on the same flame, which needs a two-option roll; tapping a value again asks for that same line on both option slots. “Count from group” treats your picks as one bucket and asks only how many of the flame's options fell into it, whichever ones they are. All three readings come from the same published tables; only the question changes.",
+      },
+      {
+        title: "Use the group mode for “both options useful”",
+        body: "Tick every line you would be happy to see, switch to “Count from group” and ask for 2. That answers the question flaming actually poses — not “did I get this exact line?” but “did both options come back useful?” Asking for 1 gives the same number as “Any of them”, since one option from the group is exactly one pick landing. Asking for 2 needs a two-option roll, so the tier's second-option chance is a hard ceiling on it.",
       },
     ],
 
@@ -315,7 +332,7 @@ const en = {
     readSlotsTerm: "Per option slot",
     readSlotsTerm2: "per flame",
     readModes:
-      "Any of them is a hit when one pick lands; All of them needs every pick on one flame, and the headline switches to “All, per flame”. A ×2 badge on a value means you asked for it on both option slots.",
+      "Any of them is a hit when one pick lands; All of them needs every pick on one flame, and the headline switches to “All, per flame”. A ×2 badge on a value means you asked for it on both option slots. Count from group ignores which lines landed and counts how many came from your selection, showing “Group, per flame”.",
 
     spendPity:
       "There is no pity. Flame number {count} has the same odds as flame number one — “flames for 50%” describes a spread across many players, not a countdown for you.",
@@ -396,6 +413,11 @@ const en = {
         answer:
           "Switch the table to “All of them”. Two specific lines can only land on a two-option roll, so the chance is roughly the tier's second-option chance times the two lines' odds — an Eternal Rebirth Flame, which always rolls two options, is dramatically better for this. Three lines at once is impossible and shows 0%. Tap a value twice to ask for that same line on both option slots.",
       },
+      {
+        question: "What are the odds of both flame options being useful?",
+        answer:
+          "Switch the table to “Count from group”, tick every line you would be happy to see, and ask for 2 options from the group. That counts how many of the flame's options fell inside your selection rather than demanding specific ones, which is the question flaming really poses. It needs a two-option roll, so the tier's second-option chance is a hard ceiling — an Eternal Rebirth Flame always rolls two and removes that ceiling entirely.",
+      },
     ],
   },
 
@@ -411,6 +433,7 @@ const en = {
     onThisLine: "On this line",
     perCube: "Per cube",
     perCubeAll: "All, per cube",
+    perCubeGroup: "Group, per cube",
     for50: "Cubes for 50%",
     for90: "Cubes for 90%",
     tapHint: "Tap the lines you want. Picks apply to both pools.",
@@ -418,12 +441,22 @@ const en = {
     selectedOther: "{count} lines selected · 1st {first}% · 2nd/3rd {second}%",
     selectedAllOne: "Chasing {count} line on {lines} lines",
     selectedAllOther: "Chasing {count} lines together on {lines} lines",
+    selectedGroupOne:
+      "Chasing {count} of {lines} lines from {options} selected lines",
+    selectedGroupOther:
+      "Chasing {count} of {lines} lines from {options} selected lines",
     matchLabel: "What counts as a hit",
     matchAny: "Any of them",
     matchAll: "All of them",
+    matchGroup: "Count from group",
     matchAnyHint: "At least one selected line lands on the item.",
     matchAllHint:
       "Every selected line lands on the same item at once. Tap a value again to ask for it on 2 or 3 lines — an item can roll the same attribute more than once.",
+    matchGroupHint:
+      "Your picks are one group, and only the number of lines drawn from it counts — not which ones. Tick every attack option, ask for 3, and you get the odds of an all-attack item.",
+    groupNeedLabel: "Lines from the group",
+    groupNeedOne: "{count} line",
+    groupNeedOther: "{count} lines",
     allImpossible:
       "{count} lines cannot fit on {lines} lines — raise the line count.",
     setup: "Cube setup",
@@ -447,8 +480,7 @@ const en = {
     tableFootnote:
       "{count} lines in this pool, totalling {total}%. Nexon rounds each entry to two decimals.",
     cellAria: "{option} {value}, {prob}% chance",
-    cellAriaStack:
-      "{option} {value}, {prob}% chance, wanted on {count} lines",
+    cellAriaStack: "{option} {value}, {prob}% chance, wanted on {count} lines",
     stackBadge: "×{count}",
     rankUpTitle: "Rank-up chance per cube",
     rankUpRow: "{chance}% rank up · ",
@@ -484,8 +516,12 @@ const en = {
         body: "Tap an option name to take every value of that stat, or tap a single value to target exactly that roll. The card shows your chance on the shown line, your chance per cube across the whole item, and how many cubes reach a 50% or 90% shot.",
       },
       {
-        title: "Decide between any and all",
-        body: "“Any of them” — the default — counts a cube as a hit when at least one of your picks lands. “All of them” asks for every pick on the same item at once, and tapping a value again asks for that same line on 2 or 3 lines. Both readings come from the same published tables; only the question changes.",
+        title: "Decide what counts as a hit",
+        body: "“Any of them” — the default — counts a cube as a hit when at least one of your picks lands. “All of them” asks for every pick on the same item at once, and tapping a value again asks for that same line on 2 or 3 lines. “Count from group” treats your picks as one bucket and asks only how many of the item's lines fell into it, whichever ones they are. All three readings come from the same published tables; only the question changes.",
+      },
+      {
+        title: "Use the group mode for “all three lines are attack”",
+        body: "Tick every line you would be happy to see — say PHY ATK, Crit ATK and Crit DMG on a weapon — switch to “Count from group”, and ask for 3 lines from the group. That is the question players actually ask, and it is a different one from either of the others: “All of them” would demand those three specific lines in that combination, while the group reading accepts any mix of them. On a Legendary weapon it is about 3.6% per cube, against 0.18% for three lines of PHY ATK alone. Asking for 1 gives the same number as “Any of them”, since one line from the group is exactly one pick landing.",
       },
     ],
 
@@ -506,7 +542,7 @@ const en = {
     readPersist:
       "Selections persist when you switch pools, so you can pick the same stat in both and see the true per-cube number.",
     readModes:
-      "Any of them is a hit when one pick lands; All of them needs every pick on the item at once, and the headline switches to “All, per cube”. A ×2 badge on a value means you asked for it on two lines.",
+      "Any of them is a hit when one pick lands; All of them needs every pick on the item at once, and the headline switches to “All, per cube”. A ×2 badge on a value means you asked for it on two lines. Count from group ignores which lines landed and counts how many came from your selection, showing “Group, per cube”.",
 
     spendSeparate:
       "Ranking up and rolling options are separate rolls. A cube that fails to rank up still rerolls your lines.",
@@ -576,6 +612,12 @@ const en = {
           "What are the odds of getting two specific potential lines on the same item?",
         answer:
           "Switch the table to “All of them”. It works out the chance that every line you picked lands on one item at once, across the lines your item actually has — the first line draws from a different pool than the second and third, so the pools are combined rather than multiplied naively. Tap a value twice to ask for that same line on two lines. Asking for more lines than the item has shows 0%, because it cannot happen.",
+      },
+      {
+        question:
+          "What are the odds of all three lines being attack lines on a weapon?",
+        answer:
+          "Switch the table to “Count from group”, tick every attack option you would accept, and ask for 3 lines from the group. It works out the chance that that many of the item's lines fall inside your selection, whichever lines they turn out to be — the question “all three lines are attack” asks, rather than any one named line. On a weapon, PHY ATK alone on all three lines is about 0.18% per cube; widening the group to PHY ATK, Crit ATK and Crit DMG lifts it to roughly 3.6%.",
       },
       {
         question: "Which parts have bonus potential?",

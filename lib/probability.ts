@@ -1,16 +1,20 @@
 // Shared probability maths for the cube and flame tables.
 //
-// Both tables answer two different questions about the same selection:
+// Both tables answer three different questions about the same selection:
 //
-//   "any"  — at least one wanted line lands (the union; probabilities add)
-//   "all"  — every wanted line lands at once on the same item
+//   "any"   — at least one wanted line lands (the union; probabilities add)
+//   "all"   — every wanted line lands at once on the same item
+//   "group" — N of the slots land somewhere inside the selection, whichever
+//             lines those turn out to be
 //
-// The second one is not a sum. It is a filling problem over the item's line
-// slots, and it is what a player is really asking when they want, say, Boss
-// DMG *and* ATT% on one weapon — or the same attribute on two lines.
+// Only the first is a sum. "All" is a filling problem over the item's line
+// slots — what a player is really asking when they want, say, Boss DMG *and*
+// ATT% on one weapon. "Group" is the same machinery pointed at a count rather
+// than at named lines, which is how "three lines of attack, any of them" gets
+// asked; it collapses back onto "any" at N = 1.
 
-/** Whether a selection means "any of these" or "all of these at once". */
-export type MatchMode = "any" | "all";
+/** Which question a selection is asking. */
+export type MatchMode = "any" | "all" | "group";
 
 /** One thing the item has to end up with, and how many slots must carry it. */
 export interface Requirement {

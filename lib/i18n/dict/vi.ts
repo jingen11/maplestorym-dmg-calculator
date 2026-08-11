@@ -19,7 +19,7 @@ const vi: Dictionary = {
 
   credits: {
     Paulpork: "công thức sát thương",
-    "櫻櫻美代套子": "bản tính chỉ số sau buff đầu tiên",
+    櫻櫻美代套子: "bản tính chỉ số sau buff đầu tiên",
     KaitouKiddo: "bản tính sát thương + huy hiệu đầu tiên",
     "殘風⎝( OωO)⎠": "thử nghiệm tỷ lệ chí mạng và giới hạn sát thương",
     Whaku: "bản thân bảng tính, cùng các thử nghiệm tỷ lệ chí mạng",
@@ -73,7 +73,8 @@ const vi: Dictionary = {
           "Một đòn đánh bằng Attack × (1 + Damage %) × (1 + Attack %) × Skill % × (1 + Final Damage %). Khi đánh boss, Boss Attack % × Skill % được cộng vào cụm Attack %, và kết quả còn bị giảm thêm bởi hệ số chênh lệch cấp độ cùng phòng thủ của boss (PDR) sau khi trừ tỷ lệ bỏ qua phòng thủ của bạn. Các công thức lấy từ bảng tính cộng đồng Damage & Emblem Calculator, đã được kiểm chứng bằng thử nghiệm trong game và giá trị phòng thủ khai thác từ dữ liệu game.",
       },
       {
-        question: "Vì sao sát thương lên boss của tôi thấp hơn nhiều so với lên quái?",
+        question:
+          "Vì sao sát thương lên boss của tôi thấp hơn nhiều so với lên quái?",
         answer:
           "Có hai mức giảm chỉ áp dụng cho boss: hệ số chênh lệch cấp độ dựa trên các chỉ số phòng thủ khai thác từ dữ liệu game (đánh mục tiêu cao cấp hơn bạn sẽ mất rất nhiều sát thương), và phòng thủ của boss (PDR) — thứ cắt đi một phần sát thương trừ khi bạn cộng dồn tỷ lệ bỏ qua phòng thủ. Mở “Chi tiết sát thương lên boss” trong thẻ kết quả để xem từng giai đoạn.",
       },
@@ -226,6 +227,7 @@ const vi: Dictionary = {
     perOptionSlot: "Mỗi ô tùy chọn",
     perFlame: "Mỗi lần flame",
     perFlameAll: "Tất cả, mỗi lần flame",
+    perFlameGroup: "Theo nhóm, mỗi lần flame",
     for50: "Số flame để đạt 50%",
     for90: "Số flame để đạt 90%",
     tapHint: "Chạm vào bất kỳ giá trị nào bên dưới để chọn tùy chọn bạn muốn.",
@@ -234,12 +236,24 @@ const vi: Dictionary = {
     selectedAllOne: "Cần {count} dòng · {two}% cơ hội có tùy chọn thứ 2",
     selectedAllOther:
       "Cần đủ {count} dòng cùng lúc · {two}% cơ hội có tùy chọn thứ 2",
+    selectedGroupOne:
+      "Cần {count} tùy chọn thuộc nhóm {options} dòng đã chọn · {two}% cơ hội có tùy chọn thứ 2",
+    selectedGroupOther:
+      "Cần {count} tùy chọn thuộc nhóm {options} dòng đã chọn · {two}% cơ hội có tùy chọn thứ 2",
     matchLabel: "Thế nào là trúng",
     matchAny: "Bất kỳ",
     matchAll: "Tất cả",
+    matchGroup: "Đếm theo nhóm",
     matchAnyHint: "Ít nhất một dòng đã chọn xuất hiện trên flame.",
     matchAllHint:
       "Mọi dòng đã chọn phải cùng xuất hiện trên một flame. Chạm lại một giá trị để yêu cầu nó ở cả hai ô tùy chọn — một flame có thể ra cùng một dòng hai lần.",
+    matchGroupHint:
+      "Các lựa chọn của bạn tính là một nhóm, và chỉ số tùy chọn rơi vào nhóm đó mới quan trọng — không cần biết là dòng nào. Chọn hết những dòng bạn chấp nhận rồi yêu cầu 2, bạn sẽ có tỷ lệ ra flame mà cả hai tùy chọn đều dùng được.",
+    groupNeedLabel: "Số tùy chọn thuộc nhóm",
+    groupNeedOne: "{count} tùy chọn",
+    groupNeedOther: "{count} tùy chọn",
+    groupNeedTwoHint:
+      "Cả hai tùy chọn đều thuộc nhóm thì phải ra hai tùy chọn, nên tỷ lệ tùy chọn thứ hai của bậc là trần cứng cho con số này.",
     allImpossible:
       "Một flame chỉ ra tối đa 2 tùy chọn, nên {count} dòng cùng lúc là không thể.",
     setup: "Thiết lập flame",
@@ -285,8 +299,12 @@ const vi: Dictionary = {
         body: "Thẻ ở trên cùng cập nhật ngay lập tức: tỷ lệ trên một ô tùy chọn, tỷ lệ thật mỗi lần flame, và số lần flame để xác suất cộng dồn đạt 50% hoặc 90%.",
       },
       {
-        title: "Chọn giữa bất kỳ và tất cả",
-        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một flame, tức là phải ra hai tùy chọn; chạm lại một giá trị để yêu cầu chính dòng đó ở cả hai ô tùy chọn. Cả hai cách đọc đều dùng chung bảng đã công bố.",
+        title: "Chọn xem thế nào là trúng",
+        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một flame, tức là phải ra hai tùy chọn; chạm lại một giá trị để yêu cầu chính dòng đó ở cả hai ô tùy chọn. “Đếm theo nhóm” xem các lựa chọn của bạn là một nhóm và chỉ hỏi có bao nhiêu tùy chọn của flame rơi vào đó, bất kể là dòng nào. Cả ba cách đọc đều dùng chung bảng đã công bố; chỉ có câu hỏi là khác.",
+      },
+      {
+        title: "Dùng chế độ nhóm cho “cả hai tùy chọn đều dùng được”",
+        body: "Tích mọi dòng bạn thấy chấp nhận được, chuyển sang “Đếm theo nhóm” và yêu cầu 2. Đó mới đúng là câu hỏi khi flame — không phải “có ra đúng dòng này không?” mà là “cả hai tùy chọn có dùng được không?”. Yêu cầu 1 sẽ cho đúng con số của “Bất kỳ”, vì một tùy chọn thuộc nhóm chính là một dòng đã chọn xuất hiện. Yêu cầu 2 thì phải ra hai tùy chọn, nên tỷ lệ tùy chọn thứ hai của bậc là trần cứng.",
       },
     ],
 
@@ -309,7 +327,7 @@ const vi: Dictionary = {
     readSlotsTerm: "Mỗi ô tùy chọn",
     readSlotsTerm2: "mỗi lần flame",
     readModes:
-      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên một flame, và tiêu đề đổi thành “Tất cả, mỗi lần flame”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó ở cả hai ô tùy chọn.",
+      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên một flame, và tiêu đề đổi thành “Tất cả, mỗi lần flame”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó ở cả hai ô tùy chọn. Đếm theo nhóm bỏ qua việc ra dòng nào và đếm xem có bao nhiêu tùy chọn đến từ lựa chọn của bạn, hiển thị “Theo nhóm, mỗi lần flame”.",
 
     spendPity:
       "Không có cơ chế bảo hiểm. Lần flame thứ {count} có tỷ lệ y hệt lần đầu tiên — “số flame để đạt 50%” mô tả phân bố trên nhiều người chơi, không phải bộ đếm ngược cho riêng bạn.",
@@ -384,10 +402,14 @@ const vi: Dictionary = {
           "Điều đó phụ thuộc vào chế độ khớp. Ở “Bất kỳ”, các tỷ lệ đã chọn cộng lại với nhau, nên mỗi dòng tích thêm đều làm mục tiêu dễ hơn — một ô tùy chọn chỉ rút đúng một dòng. Ở “Tất cả”, mỗi lựa chọn trở thành một yêu cầu riêng phải cùng xuất hiện trên một flame, vốn hiếm hơn nhiều vì cần một lần quay ra hai tùy chọn.",
       },
       {
-        question:
-          "Tỷ lệ ra hai tùy chọn flame cụ thể cùng lúc là bao nhiêu?",
+        question: "Tỷ lệ ra hai tùy chọn flame cụ thể cùng lúc là bao nhiêu?",
         answer:
           "Chuyển bảng sang “Tất cả”. Hai dòng cụ thể chỉ có thể cùng xuất hiện khi flame ra hai tùy chọn, nên tỷ lệ xấp xỉ bằng cơ hội có tùy chọn thứ hai của bậc đó nhân với tỷ lệ của hai dòng — Eternal Rebirth Flame, vốn luôn ra hai tùy chọn, tốt hơn hẳn cho việc này. Ba dòng cùng lúc là không thể và hiển thị 0%. Chạm lại một giá trị để yêu cầu chính dòng đó ở cả hai ô tùy chọn.",
+      },
+      {
+        question: "Tỷ lệ để cả hai tùy chọn flame đều dùng được là bao nhiêu?",
+        answer:
+          "Chuyển bảng sang “Đếm theo nhóm”, tích mọi dòng bạn thấy chấp nhận được, rồi yêu cầu 2 tùy chọn thuộc nhóm. Nó đếm xem có bao nhiêu tùy chọn của flame rơi vào lựa chọn của bạn thay vì đòi những dòng cụ thể — đúng câu hỏi mà việc flame thực sự đặt ra. Cách này cần một lần ra hai tùy chọn, nên tỷ lệ tùy chọn thứ hai của bậc là trần cứng — Eternal Rebirth Flame luôn ra hai tùy chọn nên gỡ bỏ hoàn toàn trần đó.",
       },
     ],
   },
@@ -404,19 +426,31 @@ const vi: Dictionary = {
     onThisLine: "Trên dòng này",
     perCube: "Mỗi cube",
     perCubeAll: "Tất cả, mỗi cube",
+    perCubeGroup: "Theo nhóm, mỗi cube",
     for50: "Số cube để đạt 50%",
     for90: "Số cube để đạt 90%",
     tapHint: "Chạm vào những dòng bạn muốn. Lựa chọn áp dụng cho cả hai nhóm.",
     selectedOne: "Đã chọn {count} dòng · Dòng 1 {first}% · Dòng 2/3 {second}%",
-    selectedOther: "Đã chọn {count} dòng · Dòng 1 {first}% · Dòng 2/3 {second}%",
+    selectedOther:
+      "Đã chọn {count} dòng · Dòng 1 {first}% · Dòng 2/3 {second}%",
     selectedAllOne: "Cần {count} dòng trong {lines} dòng",
     selectedAllOther: "Cần đủ {count} dòng cùng lúc trong {lines} dòng",
+    selectedGroupOne:
+      "Cần {count} trong {lines} dòng thuộc nhóm {options} dòng đã chọn",
+    selectedGroupOther:
+      "Cần {count} trong {lines} dòng thuộc nhóm {options} dòng đã chọn",
     matchLabel: "Thế nào là trúng",
     matchAny: "Bất kỳ",
     matchAll: "Tất cả",
+    matchGroup: "Đếm theo nhóm",
     matchAnyHint: "Ít nhất một dòng đã chọn xuất hiện trên trang bị.",
     matchAllHint:
       "Mọi dòng đã chọn phải cùng xuất hiện trên một trang bị. Chạm lại một giá trị để yêu cầu nó trên 2 hoặc 3 dòng — một trang bị có thể ra cùng một chỉ số nhiều lần.",
+    matchGroupHint:
+      "Các lựa chọn của bạn tính là một nhóm, và chỉ số dòng rơi vào nhóm đó mới quan trọng — không cần biết là dòng nào. Chọn hết các tùy chọn tấn công rồi yêu cầu 3 dòng, bạn sẽ có tỷ lệ ra trang bị toàn dòng tấn công.",
+    groupNeedLabel: "Số dòng thuộc nhóm",
+    groupNeedOne: "{count} dòng",
+    groupNeedOther: "{count} dòng",
     allImpossible:
       "{count} dòng không thể nằm vừa {lines} dòng — hãy tăng số dòng.",
     setup: "Thiết lập cube",
@@ -440,8 +474,7 @@ const vi: Dictionary = {
     tableFootnote:
       "Nhóm này có {count} dòng, tổng cộng {total}%. Nexon làm tròn từng mục đến hai chữ số thập phân.",
     cellAria: "{option} {value}, tỷ lệ {prob}%",
-    cellAriaStack:
-      "{option} {value}, tỷ lệ {prob}%, cần trên {count} dòng",
+    cellAriaStack: "{option} {value}, tỷ lệ {prob}%, cần trên {count} dòng",
     stackBadge: "×{count}",
     rankUpTitle: "Tỷ lệ lên bậc mỗi cube",
     rankUpRow: "{chance}% lên bậc · ",
@@ -477,8 +510,12 @@ const vi: Dictionary = {
         body: "Chạm tên tùy chọn để lấy mọi giá trị của chỉ số đó, hoặc chạm một giá trị để nhắm đúng mức đó. Thẻ sẽ hiển thị tỷ lệ trên dòng đang xem, tỷ lệ mỗi cube tính trên cả món đồ, và số cube để đạt mốc 50% hoặc 90%.",
       },
       {
-        title: "Chọn giữa bất kỳ và tất cả",
-        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một trang bị, và chạm lại một giá trị là yêu cầu chính dòng đó trên 2 hoặc 3 dòng. Cả hai cách đọc đều dùng chung bảng đã công bố; chỉ có câu hỏi là khác.",
+        title: "Chọn xem thế nào là trúng",
+        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một trang bị, và chạm lại một giá trị là yêu cầu chính dòng đó trên 2 hoặc 3 dòng. “Đếm theo nhóm” xem các lựa chọn của bạn là một nhóm và chỉ hỏi có bao nhiêu dòng của trang bị rơi vào đó, bất kể là dòng nào. Cả ba cách đọc đều dùng chung bảng đã công bố; chỉ có câu hỏi là khác.",
+      },
+      {
+        title: "Dùng chế độ nhóm cho “cả ba dòng đều là tấn công”",
+        body: "Tích mọi dòng bạn thấy chấp nhận được — chẳng hạn PHY ATK, Crit ATK và Crit DMG trên vũ khí — chuyển sang “Đếm theo nhóm” rồi yêu cầu 3 dòng thuộc nhóm. Đây mới là câu hỏi người chơi thực sự đặt ra, và nó khác hẳn hai cách kia: “Tất cả” sẽ đòi đúng ba dòng cụ thể đó theo đúng tổ hợp, còn cách đọc theo nhóm chấp nhận mọi tổ hợp giữa chúng. Trên vũ khí Legendary, tỷ lệ khoảng 3,6% mỗi cube, so với 0,18% nếu cả ba dòng đều phải là PHY ATK. Yêu cầu 1 sẽ cho đúng con số của “Bất kỳ”.",
       },
     ],
 
@@ -499,7 +536,7 @@ const vi: Dictionary = {
     readPersist:
       "Lựa chọn được giữ lại khi bạn đổi nhóm, nên bạn có thể chọn cùng một chỉ số ở cả hai và thấy con số mỗi cube thật sự.",
     readModes:
-      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên trang bị, và tiêu đề đổi thành “Tất cả, mỗi cube”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó trên hai dòng.",
+      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên trang bị, và tiêu đề đổi thành “Tất cả, mỗi cube”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó trên hai dòng. Đếm theo nhóm bỏ qua việc ra dòng nào và đếm xem có bao nhiêu dòng đến từ lựa chọn của bạn, hiển thị “Theo nhóm, mỗi cube”.",
 
     spendSeparate:
       "Lên bậc và quay tùy chọn là hai lần quay tách biệt. Một cube không lên bậc thì vẫn quay lại các dòng của bạn.",
@@ -570,6 +607,12 @@ const vi: Dictionary = {
           "Tỷ lệ ra hai dòng tiềm năng cụ thể trên cùng một trang bị là bao nhiêu?",
         answer:
           "Chuyển bảng sang “Tất cả”. Nó tính tỷ lệ để mọi dòng bạn chọn cùng xuất hiện trên một trang bị, dựa trên số dòng trang bị của bạn thực sự có — dòng đầu rút từ nhóm khác với dòng 2/3, nên hai nhóm được kết hợp đúng cách chứ không nhân bừa. Chạm hai lần vào một giá trị để yêu cầu chính dòng đó trên hai dòng. Yêu cầu nhiều dòng hơn số dòng của trang bị sẽ hiển thị 0%, vì điều đó không thể xảy ra.",
+      },
+      {
+        question:
+          "Tỷ lệ cả ba dòng trên vũ khí đều là dòng tấn công là bao nhiêu?",
+        answer:
+          "Chuyển bảng sang “Đếm theo nhóm”, tích mọi tùy chọn tấn công bạn chấp nhận, rồi yêu cầu 3 dòng thuộc nhóm. Bảng sẽ tính tỷ lệ có đủ số dòng rơi vào nhóm bạn chọn, bất kể đó là dòng nào — đúng ý câu hỏi “cả ba dòng đều là tấn công”, chứ không phải một dòng cụ thể. Trên vũ khí, cả ba dòng đều là PHY ATK chỉ khoảng 0,18% mỗi cube; mở rộng nhóm ra PHY ATK, Crit ATK và Crit DMG thì lên khoảng 3,6%.",
       },
       {
         question: "Những bộ phận nào có tiềm năng cộng thêm?",

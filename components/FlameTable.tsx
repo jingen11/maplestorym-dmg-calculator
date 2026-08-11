@@ -20,6 +20,7 @@ import {
   FLAME_SOURCE,
   FLAME_UPDATED,
   getRolls,
+  groupOfChance,
   RARITIES,
   rollKey as keyOf,
   selectedGroups,
@@ -50,8 +51,11 @@ export default function FlameTable({
   const [eternal, setEternal] = useState(false);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<MatchMode>("any");
+  /* How many of the flame's options have to fall inside the selection, in
+     "group" mode only. A flame has at most two, so this is 1 or 2. */
+  const [groupNeed, setGroupNeed] = useState(2);
   /* key → how many option slots must carry it. "All" mode reads the count;
-     "any" mode only cares that the key is there. */
+     the other two only care that the key is there. */
   const [picked, setPicked] = useState<Map<string, number>>(new Map());
 
   const rolls = useMemo(() => getRolls(slot, rarity), [slot, rarity]);
@@ -86,8 +90,7 @@ export default function FlameTable({
     if (!q) return rows;
     return rows.filter(
       (r) =>
-        r.label.toLowerCase().includes(q) ||
-        r.option.toLowerCase().includes(q),
+        r.label.toLowerCase().includes(q) || r.option.toLowerCase().includes(q),
     );
   }, [rows, query]);
 
@@ -110,10 +113,7 @@ export default function FlameTable({
   /* "All" is a coverage problem, not a sum: every selected line has to land
      on the same flame. Two grades of one option are two separate lines —
      the two draws are independent, so an option can repeat. */
-  const groups = useMemo(
-    () => selectedGroups(rolls, picked),
-    [rolls, picked],
-  );
+  const groups = useMemo(() => selectedGroups(rolls, picked), [rolls, picked]);
 
   const twoOptionPct = eternal
     ? TWO_OPTION_CHANCE.Eternal
@@ -124,7 +124,9 @@ export default function FlameTable({
           groups.map((g) => ({ prob: g.roll.prob, need: g.need })),
           twoOptionPct,
         )
-      : atLeastOneChance(perOption, twoOptionPct);
+      : mode === "group"
+        ? groupOfChance(perOption, twoOptionPct, groupNeed)
+        : atLeastOneChance(perOption, twoOptionPct);
   /* A flame rolls at most two options, so a third wanted line never fits. */
   const wantedLines = groups.reduce((sum, g) => sum + g.need, 0);
   const impossible = mode === "all" && wantedLines > 2;
@@ -161,8 +163,8 @@ export default function FlameTable({
      tens of thousands of times, and getRolls rebuilds its array each call.
      `picked` is a dependency because the roller decides what counts as a hit. */
   const roller = useMemo(
-    () => flameRoller(slot, rarity, twoOptionPct, picked, mode),
-    [slot, rarity, twoOptionPct, picked, mode],
+    () => flameRoller(slot, rarity, twoOptionPct, picked, mode, groupNeed),
+    [slot, rarity, twoOptionPct, picked, mode, groupNeed],
   );
 
   const rollFlame = useCallback((): SimRoll => {
@@ -201,7 +203,11 @@ export default function FlameTable({
           </div>
           <div className="min-w-0 text-center">
             <p className="stage-label">
-              {mode === "all" ? dict.perFlameAll : dict.perFlame}
+              {mode === "all"
+                ? dict.perFlameAll
+                : mode === "group"
+                  ? dict.perFlameGroup
+                  : dict.perFlame}
             </p>
             <p className="mt-1 font-display text-xl text-maple-deep sm:text-2xl">
               {fmt(perFlame)}%
@@ -233,13 +239,25 @@ export default function FlameTable({
                     }),
                     { count: wantedLines, two: fmt(twoOptionPct, 1) },
                   )
-                : fill(
-                    plural(pickedCount, {
-                      one: dict.selectedOne,
-                      other: dict.selectedOther,
-                    }),
-                    { count: pickedCount, two: fmt(twoOptionPct, 1) },
-                  )}
+                : mode === "group"
+                  ? fill(
+                      plural(groupNeed, {
+                        one: dict.selectedGroupOne,
+                        other: dict.selectedGroupOther,
+                      }),
+                      {
+                        count: groupNeed,
+                        options: pickedCount,
+                        two: fmt(twoOptionPct, 1),
+                      },
+                    )
+                  : fill(
+                      plural(pickedCount, {
+                        one: dict.selectedOne,
+                        other: dict.selectedOther,
+                      }),
+                      { count: pickedCount, two: fmt(twoOptionPct, 1) },
+                    )}
               <button
                 type="button"
                 onClick={() => setPicked(new Map())}
@@ -308,7 +326,7 @@ export default function FlameTable({
           <div>
             <p className="stage-label mb-2 text-ink-soft">{dict.matchLabel}</p>
             <div className="flex flex-wrap gap-2">
-              {(["any", "all"] as MatchMode[]).map((m) => (
+              {(["any", "all", "group"] as MatchMode[]).map((m) => (
                 <button
                   key={m}
                   type="button"
@@ -316,13 +334,51 @@ export default function FlameTable({
                   aria-pressed={mode === m}
                   className={pill(mode === m)}
                 >
-                  {m === "any" ? dict.matchAny : dict.matchAll}
+                  {m === "any"
+                    ? dict.matchAny
+                    : m === "all"
+                      ? dict.matchAll
+                      : dict.matchGroup}
                 </button>
               ))}
             </div>
             <p className="mt-1 text-[11px] font-semibold text-ink-soft">
-              {mode === "all" ? dict.matchAllHint : dict.matchAnyHint}
+              {mode === "all"
+                ? dict.matchAllHint
+                : mode === "group"
+                  ? dict.matchGroupHint
+                  : dict.matchAnyHint}
             </p>
+            {/* How many of the flame's options have to land in the group.
+                A flame rolls at most two, so the choice stops there. */}
+            {mode === "group" && (
+              <div className="mt-3">
+                <p className="stage-label mb-2 text-ink-soft">
+                  {dict.groupNeedLabel}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setGroupNeed(n)}
+                      aria-pressed={groupNeed === n}
+                      className={pill(groupNeed === n)}
+                    >
+                      {plural(n, {
+                        one: dict.groupNeedOne,
+                        other: dict.groupNeedOther,
+                      })}
+                    </button>
+                  ))}
+                </div>
+                {groupNeed === 2 && (
+                  <p className="mt-1 text-[11px] font-semibold text-ink-soft">
+                    {dict.groupNeedTwoHint}
+                  </p>
+                )}
+              </div>
+            )}
             {impossible && (
               <p className="mt-1 text-[11px] font-bold text-maple-deep">
                 {fill(dict.allImpossible, { count: wantedLines })}
@@ -471,7 +527,7 @@ export default function FlameTable({
       {/* Remounted whenever the setup or the selection changes: a running
           tally only means anything against one fixed target. */}
       <RollSimulator
-        key={`${slot}|${rarity}|${eternal}|${mode}|${[...picked]
+        key={`${slot}|${rarity}|${eternal}|${mode}|${groupNeed}|${[...picked]
           .map(([k, n]) => `${k}×${n}`)
           .sort()
           .join("|")}`}
