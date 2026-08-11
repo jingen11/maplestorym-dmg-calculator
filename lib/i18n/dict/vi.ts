@@ -217,7 +217,7 @@ const vi: Dictionary = {
   flames: {
     metaTitle: "Xác suất Rebirth Flame trong MapleStory M",
     metaDescription:
-      "Mọi tùy chọn Rebirth Flame trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận trang bị và bậc flame, chọn các tùy chọn bạn muốn, rồi xem tỷ lệ mỗi lần flame và số lần flame cần bỏ ra.",
+      "Mọi tùy chọn Rebirth Flame trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận trang bị và bậc flame, chọn các tùy chọn bạn muốn — bất kỳ dòng nào, hoặc hai tùy chọn cụ thể cùng nằm trên một flame — rồi xem tỷ lệ mỗi lần flame và số lần flame cần bỏ ra.",
     h1: "Xác suất Rebirth Flame",
     intro:
       "Bảng Rebirth Flame chính thức của Nexon, ở dạng tương tác. Chọn bộ phận trang bị và bậc flame, chạm vào những giá trị bạn thực sự muốn, rồi xem tỷ lệ mỗi lần flame — cùng số lần flame cần để đạt mức 50/50 hoặc gần như chắc chắn.",
@@ -225,11 +225,23 @@ const vi: Dictionary = {
     ariaTable: "Xác suất Rebirth Flame",
     perOptionSlot: "Mỗi ô tùy chọn",
     perFlame: "Mỗi lần flame",
+    perFlameAll: "Tất cả, mỗi lần flame",
     for50: "Số flame để đạt 50%",
     for90: "Số flame để đạt 90%",
     tapHint: "Chạm vào bất kỳ giá trị nào bên dưới để chọn tùy chọn bạn muốn.",
     selectedOne: "Đã chọn {count} dòng · {two}% cơ hội có tùy chọn thứ 2",
     selectedOther: "Đã chọn {count} dòng · {two}% cơ hội có tùy chọn thứ 2",
+    selectedAllOne: "Cần {count} dòng · {two}% cơ hội có tùy chọn thứ 2",
+    selectedAllOther:
+      "Cần đủ {count} dòng cùng lúc · {two}% cơ hội có tùy chọn thứ 2",
+    matchLabel: "Thế nào là trúng",
+    matchAny: "Bất kỳ",
+    matchAll: "Tất cả",
+    matchAnyHint: "Ít nhất một dòng đã chọn xuất hiện trên flame.",
+    matchAllHint:
+      "Mọi dòng đã chọn phải cùng xuất hiện trên một flame. Chạm lại một giá trị để yêu cầu nó ở cả hai ô tùy chọn — một flame có thể ra cùng một dòng hai lần.",
+    allImpossible:
+      "Một flame chỉ ra tối đa 2 tùy chọn, nên {count} dòng cùng lúc là không thể.",
     setup: "Thiết lập flame",
     tier: "Bậc Rebirth Flame",
     eternal: "Eternal Rebirth Flame",
@@ -242,6 +254,9 @@ const vi: Dictionary = {
     tableFootnote:
       "Mỗi tùy chọn ra một trong bốn giá trị với khả năng ngang nhau — nên một giá trị đơn lẻ bằng “giá trị bất kỳ” ÷ 4. Giá trị xếp từ tốt nhất trở xuống. Tổng tất cả các dòng là {total}%; Nexon làm tròn từng mục đến hai chữ số thập phân.",
     cellAria: "{option}, bậc {grade}: {value}% với tỷ lệ {prob}%",
+    cellAriaStack:
+      "{option}, bậc {grade}: {value}% với tỷ lệ {prob}%, cần trên {count} ô tùy chọn",
+    stackBadge: "×{count}",
     noteIndependent:
       "“Mỗi lần flame” giả định hai tùy chọn được quay độc lập — Nexon không công bố liệu tùy chọn thứ hai có thể trùng với tùy chọn đầu hay không.",
     noteSource: "Dữ liệu từ {link}, cập nhật lần cuối {date}.",
@@ -269,6 +284,10 @@ const vi: Dictionary = {
         title: "Đọc tỷ lệ của bạn",
         body: "Thẻ ở trên cùng cập nhật ngay lập tức: tỷ lệ trên một ô tùy chọn, tỷ lệ thật mỗi lần flame, và số lần flame để xác suất cộng dồn đạt 50% hoặc 90%.",
       },
+      {
+        title: "Chọn giữa bất kỳ và tất cả",
+        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một flame, tức là phải ra hai tùy chọn; chạm lại một giá trị để yêu cầu chính dòng đó ở cả hai ô tùy chọn. Cả hai cách đọc đều dùng chung bảng đã công bố.",
+      },
     ],
 
     exampleIntro: "Trên {slot} với flame {rarity}, khi săn {option}:",
@@ -289,12 +308,15 @@ const vi: Dictionary = {
       "Mỗi ô tùy chọn là tỷ lệ trên một lần quay; mỗi lần flame cao hơn vì một lần flame có thể ra tùy chọn thứ hai.",
     readSlotsTerm: "Mỗi ô tùy chọn",
     readSlotsTerm2: "mỗi lần flame",
+    readModes:
+      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên một flame, và tiêu đề đổi thành “Tất cả, mỗi lần flame”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó ở cả hai ô tùy chọn.",
 
     spendPity:
       "Không có cơ chế bảo hiểm. Lần flame thứ {count} có tỷ lệ y hệt lần đầu tiên — “số flame để đạt 50%” mô tả phân bố trên nhiều người chơi, không phải bộ đếm ngược cho riêng bạn.",
     spendAny:
-      "Chọn nhiều dòng nghĩa là bất kỳ dòng nào trong số đó, không phải tất cả. Ra được hai tùy chọn cụ thể trên cùng một món là chuyện hiếm hơn nhiều, vì nó cần một lần quay ra hai tùy chọn.",
-    spendAnyTerm: "bất kỳ dòng nào",
+      "Chọn nhiều dòng nghĩa là Bất kỳ dòng nào trong số đó, cho tới khi bạn chuyển sang Tất cả. Ra được hai tùy chọn cụ thể trên cùng một flame là chuyện hiếm hơn nhiều, vì nó chỉ xảy ra khi quay ra hai tùy chọn.",
+    spendStack:
+      "Yêu cầu cùng một dòng ở cả hai ô tùy chọn còn hiếm hơn nữa — nó bình phương tỷ lệ của riêng dòng đó — và ba dòng cùng lúc là không thể, vì một flame không bao giờ ra quá hai tùy chọn.",
     spendTier:
       "Các con số giả định mọi lần flame đều đúng bậc bạn đã chọn. Flame bậc Rare không bao giờ ra được tùy chọn thứ hai.",
 
@@ -359,7 +381,13 @@ const vi: Dictionary = {
       {
         question: "Điều gì xảy ra khi tôi chọn nhiều hơn một giá trị?",
         answer:
-          "Chọn nhiều giá trị nghĩa là “bất kỳ giá trị nào trong số này”, không phải “tất cả các giá trị này”. Một ô tùy chọn chỉ rút đúng một dòng, nên các tỷ lệ đã chọn cộng lại với nhau và mỗi dòng tích thêm đều làm mục tiêu dễ hơn. Bảng tính chưa trả lời được câu hỏi ngược lại — tỷ lệ ra hai tùy chọn cụ thể trên cùng một món — vốn hiếm hơn nhiều vì cần một lần quay ra hai tùy chọn.",
+          "Điều đó phụ thuộc vào chế độ khớp. Ở “Bất kỳ”, các tỷ lệ đã chọn cộng lại với nhau, nên mỗi dòng tích thêm đều làm mục tiêu dễ hơn — một ô tùy chọn chỉ rút đúng một dòng. Ở “Tất cả”, mỗi lựa chọn trở thành một yêu cầu riêng phải cùng xuất hiện trên một flame, vốn hiếm hơn nhiều vì cần một lần quay ra hai tùy chọn.",
+      },
+      {
+        question:
+          "Tỷ lệ ra hai tùy chọn flame cụ thể cùng lúc là bao nhiêu?",
+        answer:
+          "Chuyển bảng sang “Tất cả”. Hai dòng cụ thể chỉ có thể cùng xuất hiện khi flame ra hai tùy chọn, nên tỷ lệ xấp xỉ bằng cơ hội có tùy chọn thứ hai của bậc đó nhân với tỷ lệ của hai dòng — Eternal Rebirth Flame, vốn luôn ra hai tùy chọn, tốt hơn hẳn cho việc này. Ba dòng cùng lúc là không thể và hiển thị 0%. Chạm lại một giá trị để yêu cầu chính dòng đó ở cả hai ô tùy chọn.",
       },
     ],
   },
@@ -367,7 +395,7 @@ const vi: Dictionary = {
   cubes: {
     metaTitle: "Xác suất Cube trong MapleStory M",
     metaDescription:
-      "Mọi tùy chọn tiềm năng và tiềm năng cộng thêm trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận, bậc và dòng, chọn các tùy chọn bạn muốn, rồi xem tỷ lệ mỗi cube và số cube cần bỏ ra.",
+      "Mọi tùy chọn tiềm năng và tiềm năng cộng thêm trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận, bậc và dòng, chọn các tùy chọn bạn muốn — bất kỳ dòng nào, hoặc 2–3 dòng cụ thể trên cùng một trang bị — rồi xem tỷ lệ mỗi cube và số cube cần bỏ ra.",
     h1: "Xác suất Cube",
     intro:
       "Bảng tiềm năng và tiềm năng cộng thêm chính thức của Nexon, ở dạng tương tác. Chọn bộ phận, bậc và nhóm dòng, chạm vào những tùy chọn bạn thực sự muốn, rồi xem tỷ lệ mỗi cube — cùng số cube cần để đạt được.",
@@ -375,11 +403,22 @@ const vi: Dictionary = {
     ariaTable: "Xác suất Cube",
     onThisLine: "Trên dòng này",
     perCube: "Mỗi cube",
+    perCubeAll: "Tất cả, mỗi cube",
     for50: "Số cube để đạt 50%",
     for90: "Số cube để đạt 90%",
     tapHint: "Chạm vào những dòng bạn muốn. Lựa chọn áp dụng cho cả hai nhóm.",
     selectedOne: "Đã chọn {count} dòng · Dòng 1 {first}% · Dòng 2/3 {second}%",
     selectedOther: "Đã chọn {count} dòng · Dòng 1 {first}% · Dòng 2/3 {second}%",
+    selectedAllOne: "Cần {count} dòng trong {lines} dòng",
+    selectedAllOther: "Cần đủ {count} dòng cùng lúc trong {lines} dòng",
+    matchLabel: "Thế nào là trúng",
+    matchAny: "Bất kỳ",
+    matchAll: "Tất cả",
+    matchAnyHint: "Ít nhất một dòng đã chọn xuất hiện trên trang bị.",
+    matchAllHint:
+      "Mọi dòng đã chọn phải cùng xuất hiện trên một trang bị. Chạm lại một giá trị để yêu cầu nó trên 2 hoặc 3 dòng — một trang bị có thể ra cùng một chỉ số nhiều lần.",
+    allImpossible:
+      "{count} dòng không thể nằm vừa {lines} dòng — hãy tăng số dòng.",
     setup: "Thiết lập cube",
     cubeType: "Loại cube",
     potential: "Tiềm năng",
@@ -401,6 +440,9 @@ const vi: Dictionary = {
     tableFootnote:
       "Nhóm này có {count} dòng, tổng cộng {total}%. Nexon làm tròn từng mục đến hai chữ số thập phân.",
     cellAria: "{option} {value}, tỷ lệ {prob}%",
+    cellAriaStack:
+      "{option} {value}, tỷ lệ {prob}%, cần trên {count} dòng",
+    stackBadge: "×{count}",
     rankUpTitle: "Tỷ lệ lên bậc mỗi cube",
     rankUpRow: "{chance}% lên bậc · ",
     rankUpCubes: "{count} cube",
@@ -434,6 +476,10 @@ const vi: Dictionary = {
         title: "Chọn thứ bạn muốn và đọc tỷ lệ",
         body: "Chạm tên tùy chọn để lấy mọi giá trị của chỉ số đó, hoặc chạm một giá trị để nhắm đúng mức đó. Thẻ sẽ hiển thị tỷ lệ trên dòng đang xem, tỷ lệ mỗi cube tính trên cả món đồ, và số cube để đạt mốc 50% hoặc 90%.",
       },
+      {
+        title: "Chọn giữa bất kỳ và tất cả",
+        body: "“Bất kỳ” — mặc định — tính là trúng khi ít nhất một dòng bạn chọn xuất hiện. “Tất cả” đòi mọi dòng đã chọn cùng nằm trên một trang bị, và chạm lại một giá trị là yêu cầu chính dòng đó trên 2 hoặc 3 dòng. Cả hai cách đọc đều dùng chung bảng đã công bố; chỉ có câu hỏi là khác.",
+      },
     ],
 
     exampleIntro: "Săn {option} {value} trên {part} bậc {rank}:",
@@ -452,14 +498,17 @@ const vi: Dictionary = {
     readPoolsTerm2: "mỗi cube",
     readPersist:
       "Lựa chọn được giữ lại khi bạn đổi nhóm, nên bạn có thể chọn cùng một chỉ số ở cả hai và thấy con số mỗi cube thật sự.",
+    readModes:
+      "Bất kỳ tính là trúng khi một dòng đã chọn xuất hiện; Tất cả đòi mọi dòng đã chọn cùng nằm trên trang bị, và tiêu đề đổi thành “Tất cả, mỗi cube”. Nhãn ×2 trên một giá trị nghĩa là bạn yêu cầu nó trên hai dòng.",
 
     spendSeparate:
       "Lên bậc và quay tùy chọn là hai lần quay tách biệt. Một cube không lên bậc thì vẫn quay lại các dòng của bạn.",
     spendPity:
       "Cả hai lần quay đều không có bảo hiểm. Cube thứ {count} có tỷ lệ lên bậc y hệt cube đầu tiên.",
     spendAny:
-      "Chọn nhiều dòng nghĩa là bất kỳ dòng nào trong số đó, không phải tất cả.",
-    spendAnyTerm: "bất kỳ dòng nào",
+      "Chọn nhiều dòng nghĩa là Bất kỳ dòng nào trong số đó, cho tới khi bạn chuyển sang Tất cả — và bước chuyển đó không hề nhỏ: hai dòng cụ thể cùng lúc hiếm hơn từng dòng riêng lẻ hàng bậc.",
+    spendStack:
+      "Yêu cầu cùng một dòng hai lần còn hiếm hơn nữa, còn yêu cầu nhiều dòng hơn số dòng trang bị của bạn thì đơn giản là không thể — bảng hiển thị 0% thay vì giả vờ ngược lại.",
 
     sim: {
       title: "Mô phỏng roll",
@@ -515,6 +564,12 @@ const vi: Dictionary = {
         question: "Cần bao nhiêu cube để lên bậc tiềm năng?",
         answer:
           "Lên bậc là một lần quay tách biệt với các tùy chọn: 1% mỗi cube với Occult và Red Cube, 2% với Black và Choice Cube. Tức là khoảng {slow} cube để đạt 50% ở mức 1%, hoặc {fast} cube ở mức 2%. Không có bảo hiểm — mỗi cube đều độc lập.",
+      },
+      {
+        question:
+          "Tỷ lệ ra hai dòng tiềm năng cụ thể trên cùng một trang bị là bao nhiêu?",
+        answer:
+          "Chuyển bảng sang “Tất cả”. Nó tính tỷ lệ để mọi dòng bạn chọn cùng xuất hiện trên một trang bị, dựa trên số dòng trang bị của bạn thực sự có — dòng đầu rút từ nhóm khác với dòng 2/3, nên hai nhóm được kết hợp đúng cách chứ không nhân bừa. Chạm hai lần vào một giá trị để yêu cầu chính dòng đó trên hai dòng. Yêu cầu nhiều dòng hơn số dòng của trang bị sẽ hiển thị 0%, vì điều đó không thể xảy ra.",
       },
       {
         question: "Những bộ phận nào có tiềm năng cộng thêm?",

@@ -7,6 +7,7 @@
 // stats ("420") and percentages ("2.70%") appear in the same column.
 
 import cubesJson from "./data/cubes.json";
+import { requirementChance } from "./probability";
 
 export type Rank = "Rare" | "Epic" | "Unique" | "Legendary";
 /** First potential line vs the second/third lines — different option pools. */
@@ -70,7 +71,15 @@ export function getLines(
 /** Stable id for a line across pools, so picks survive a pool switch. */
 export const lineKey = (line: CubeLine) => `${line.option}@@${line.value}`;
 
-export function selectedChance(lines: CubeLine[], picked: Set<string>): number {
+/**
+ * The player's selection: line key → how many lines of it they want.
+ *
+ * A count above 1 means the same line has to appear that many times on the
+ * item. "Any" mode ignores the counts; only "all" mode reads them.
+ */
+export type CubePicks = ReadonlyMap<string, number>;
+
+export function selectedChance(lines: CubeLine[], picked: CubePicks): number {
   return lines.reduce(
     (sum, line) => (picked.has(lineKey(line)) ? sum + line.prob : sum),
     0,
@@ -94,6 +103,86 @@ export function cubeChance(
   const q2 = clamp(secondChance);
   const miss = (1 - q1) * Math.pow(1 - q2, Math.max(0, lines - 1));
   return (1 - miss) * 100;
+}
+
+/** One selected line, with its hit rate in each pool. */
+export interface CubeGroup {
+  key: string;
+  option: string;
+  value: string;
+  /** % chance the 1st line rolls exactly this line. */
+  first: number;
+  /** % chance a 2nd/3rd line does. */
+  second: number;
+  /** How many lines of it the player asked for. */
+  need: number;
+}
+
+/**
+ * The selection as individual requirements, for the "all" reading.
+ *
+ * Each selected line stands on its own: picking two values of the same stat
+ * asks for both of them on the item, not either. An item can carry the same
+ * attribute on two lines, so that is a real target rather than a dead one —
+ * and a pick counted twice asks for that one line on two of them.
+ *
+ * A line is keyed by option+value, so the same line appearing in both pools
+ * is one requirement that either slot can satisfy.
+ */
+export function selectedGroups(
+  firstLines: CubeLine[],
+  secondLines: CubeLine[],
+  picked: CubePicks,
+): CubeGroup[] {
+  const groups = new Map<string, CubeGroup>();
+  const add = (lines: CubeLine[], pool: Pool) => {
+    for (const line of lines) {
+      const key = lineKey(line);
+      const need = picked.get(key);
+      if (!need) continue;
+      let group = groups.get(key);
+      if (!group) {
+        group = {
+          key,
+          option: line.option,
+          value: line.value,
+          first: 0,
+          second: 0,
+          need,
+        };
+        groups.set(key, group);
+      }
+      group[pool] += line.prob;
+    }
+  };
+  add(firstLines, "first");
+  add(secondLines, "second");
+  return [...groups.values()];
+}
+
+/**
+ * Chance a single cube leaves *every* wanted line on the item at once.
+ *
+ * The 1st line draws from the `first` pool and lines 2-3 from the `second`
+ * one, so each requirement gets a per-slot probability vector and the slots
+ * are assumed independent, exactly as in `cubeChance`. Wanting more lines
+ * than the item has is impossible, and comes back as 0.
+ */
+export function cubeAllChance(groups: CubeGroup[], lines: number): number {
+  const slots = Math.max(0, lines);
+  if (slots === 0) return 0;
+  const clamp = (n: number) => Math.min(Math.max(n, 0), 100) / 100;
+  return (
+    requirementChance(
+      groups.map((g) => ({
+        probs: [
+          clamp(g.first),
+          ...Array<number>(slots - 1).fill(clamp(g.second)),
+        ],
+        need: g.need,
+      })),
+    ) * 100
+  );
 }
 
 /** Cubes needed for a cumulative `target`% shot at a `chance`% per cube. */

@@ -14,10 +14,39 @@ import {
   lineKey,
   type CubeKind,
   type CubeLine,
+  type CubePicks,
   type Pool,
   type Rank,
 } from "./cubes";
-import { getRolls, type FlameRoll, type Rarity } from "./flames";
+import {
+  getRolls,
+  rollKey,
+  type FlamePicks,
+  type FlameRoll,
+  type Rarity,
+} from "./flames";
+import type { MatchMode } from "./probability";
+
+/**
+ * Whether the slots that matched satisfy the player's target.
+ *
+ * In "any" mode one match is enough. In "all" mode every selected line has to
+ * be present as many times as it was picked — two slots can carry the same
+ * attribute, so both "two different stats" and "this one stat twice" are
+ * reachable targets rather than contradictions.
+ */
+function isHit(
+  mode: MatchMode,
+  matched: string[],
+  required: ReadonlyMap<string, number>,
+): boolean {
+  if (mode === "any") return matched.length > 0;
+  if (required.size === 0) return false;
+  const seen = new Map<string, number>();
+  for (const key of matched) seen.set(key, (seen.get(key) ?? 0) + 1);
+  for (const [key, need] of required) if ((seen.get(key) ?? 0) < need) return false;
+  return true;
+}
 
 /** Injectable so a caller can seed a deterministic run; defaults to Math.random. */
 export type Rng = () => number;
@@ -80,13 +109,17 @@ export interface CubeRoller {
  * matching `cubeChance` in lib/cubes.ts. Like that function, this assumes
  * the lines are drawn independently — Nexon does not disclose whether one
  * line can repeat another, so a roll here can produce duplicates.
+ *
+ * `mode` decides what counts as a hit: any wanted line, or every wanted
+ * stat on the item at once.
  */
 export function cubeRoller(
   part: string,
   kind: CubeKind,
   rank: Rank,
   lineCount: number,
-  picked: ReadonlySet<string>,
+  picked: CubePicks,
+  mode: MatchMode = "any",
 ): CubeRoller {
   const deckFor = (pool: Pool) =>
     buildDeck(getLines(part, kind, rank, pool), (l) => l.prob);
@@ -101,13 +134,18 @@ export function cubeRoller(
     roll(rng: Rng = Math.random): CubeRoll {
       const lines: CubeLine[] = [];
       const hitSlots: number[] = [];
+      const matched: string[] = [];
       for (let slot = 0; slot < slots; slot++) {
         const line = draw(decks[slot === 0 ? "first" : "second"], rng);
         if (!line) break;
-        if (picked.has(lineKey(line))) hitSlots.push(lines.length);
+        const key = lineKey(line);
+        if (picked.has(key)) {
+          hitSlots.push(lines.length);
+          matched.push(key);
+        }
         lines.push(line);
       }
-      return { lines, hit: hitSlots.length > 0, hitSlots };
+      return { lines, hit: isHit(mode, matched, picked), hitSlots };
     },
   };
 }
@@ -134,12 +172,16 @@ export interface FlameRoller {
  * an Eternal Rebirth Flame). As in `atLeastOneChance`, the second option is
  * assumed to be an independent draw from the same pool, so it can repeat the
  * first — Nexon does not disclose otherwise.
+ *
+ * `mode` decides what counts as a hit: any wanted option, or every wanted
+ * option on the same flame.
  */
 export function flameRoller(
   slot: string,
   rarity: Rarity,
   twoOptionPct: number,
-  isPicked: (roll: FlameRoll) => boolean,
+  picked: FlamePicks,
+  mode: MatchMode = "any",
 ): FlameRoller {
   const deck = buildDeck(getRolls(slot, rarity), (r) => r.prob);
   const twoChance = Math.min(Math.max(twoOptionPct, 0), 100) / 100;
@@ -150,13 +192,18 @@ export function flameRoller(
       const count = rng() < twoChance ? 2 : 1;
       const options: FlameRoll[] = [];
       const hitSlots: number[] = [];
+      const matched: string[] = [];
       for (let i = 0; i < count; i++) {
         const option = draw(deck, rng);
         if (!option) break;
-        if (isPicked(option)) hitSlots.push(options.length);
+        const key = rollKey(option.option, option.grade);
+        if (picked.has(key)) {
+          hitSlots.push(options.length);
+          matched.push(key);
+        }
         options.push(option);
       }
-      return { options, hit: hitSlots.length > 0, hitSlots };
+      return { options, hit: isHit(mode, matched, picked), hitSlots };
     },
   };
 }

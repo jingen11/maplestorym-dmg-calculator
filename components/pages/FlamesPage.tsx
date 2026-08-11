@@ -203,6 +203,12 @@ export default function FlamesPage({ locale }: { locale: Locale }) {
                   terms={[t.readSlotsTerm, t.readSlotsTerm2]}
                 />
               </li>
+              {/* The emphasized terms are the toggle's own labels, so the
+                  guide and the button can never drift apart in any locale. */}
+              <li>
+                •{" "}
+                <Emphasize text={t.readModes} terms={[t.matchAny, t.matchAll]} />
+              </li>
             </ul>
           </div>
 
@@ -216,8 +222,10 @@ export default function FlamesPage({ locale }: { locale: Locale }) {
                 {fill(t.spendPity, { count: example.bestAttempts ?? "—" })}
               </li>
               <li>
-                • <Emphasize text={t.spendAny} terms={[t.spendAnyTerm]} />
+                •{" "}
+                <Emphasize text={t.spendAny} terms={[t.matchAny, t.matchAll]} />
               </li>
+              <li>• {t.spendStack}</li>
               <li>• {t.spendTier}</li>
             </ul>
           </div>

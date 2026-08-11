@@ -4,6 +4,7 @@
 // roll at that rarity (Final DMG / DEF Ignore are Legendary+ only).
 
 import flamesJson from "./data/flames.json";
+import { requirementChance } from "./probability";
 
 export type Rarity = "Rare" | "Epic" | "Unique" | "Legendary" | "Mythic";
 
@@ -64,6 +65,37 @@ export function getRolls(slot: string, rarity: Rarity): FlameRoll[] {
   return rolls;
 }
 
+/** Stable id for a line: option plus value grade, shared by UI and simulator. */
+export const rollKey = (option: string, grade: number) => `${option}@@${grade}`;
+
+/**
+ * The player's selection: line key → how many option slots must carry it.
+ *
+ * A count above 1 means the same line has to appear that many times on one
+ * flame. "Any" mode ignores the counts; only "all" mode reads them.
+ */
+export type FlamePicks = ReadonlyMap<string, number>;
+
+/**
+ * The selection as individual requirements, for the "all" reading.
+ *
+ * Each selected line stands on its own: picking two grades of one option asks
+ * for both of them, not either. The two option slots are independent draws
+ * from the same pool, so a flame can carry the same option twice — and a pick
+ * counted twice asks for exactly that.
+ */
+export function selectedGroups(
+  rolls: FlameRoll[],
+  picked: FlamePicks,
+): { roll: FlameRoll; need: number }[] {
+  const groups: { roll: FlameRoll; need: number }[] = [];
+  for (const roll of rolls) {
+    const need = picked.get(rollKey(roll.option, roll.grade));
+    if (need) groups.push({ roll, need });
+  }
+  return groups;
+}
+
 /** Distinct option names available for a slot at a rarity. */
 export function getOptions(slot: string, rarity: Rarity): string[] {
   return [...new Set(getRolls(slot, rarity).map((r) => r.option))];
@@ -90,6 +122,31 @@ export function atLeastOneChance(perOption: number, twoOptionPct: number): numbe
   const miss = 1 - q;
   const combined = (1 - t) * (1 - miss) + t * (1 - miss * miss);
   return combined * 100;
+}
+
+/**
+ * Chance a single flame yields *every* wanted line at once.
+ *
+ * A flame rolls one option, or two with probability `twoOptionPct`, so two
+ * wanted lines need the two-option roll and three can never happen at all.
+ * Each group is one selected line and how many slots must carry it; as
+ * everywhere else here, the two draws are assumed independent, so they may
+ * repeat an option.
+ */
+export function allOfChance(
+  groups: { prob: number; need: number }[],
+  twoOptionPct: number,
+): number {
+  const t = Math.min(Math.max(twoOptionPct, 0), 100) / 100;
+  const reqs = groups.map((g) => ({
+    q: Math.min(Math.max(g.prob, 0), 100) / 100,
+    need: g.need,
+  }));
+  const one = requirementChance(reqs.map((r) => ({ probs: [r.q], need: r.need })));
+  const two = requirementChance(
+    reqs.map((r) => ({ probs: [r.q, r.q], need: r.need })),
+  );
+  return ((1 - t) * one + t * two) * 100;
 }
 
 /** Expected flames needed for a ~50% and ~90% cumulative shot. */

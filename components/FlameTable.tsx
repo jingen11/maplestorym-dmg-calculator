@@ -13,6 +13,7 @@ import {
   type Terms,
 } from "@/lib/i18n";
 import {
+  allOfChance,
   atLeastOneChance,
   attemptsFor,
   FLAME_SLOTS,
@@ -20,14 +21,14 @@ import {
   FLAME_UPDATED,
   getRolls,
   RARITIES,
+  rollKey as keyOf,
+  selectedGroups,
   TWO_OPTION_CHANCE,
   type FlameRoll,
   type Rarity,
 } from "@/lib/flames";
+import type { MatchMode } from "@/lib/probability";
 import { flameRoller } from "@/lib/simulate";
-
-/** A selected line is identified by its option name plus value grade. */
-const keyOf = (option: string, grade: number) => `${option}@@${grade}`;
 
 const fmt = (n: number, digits = 2) =>
   n.toLocaleString(undefined, {
@@ -48,7 +49,10 @@ export default function FlameTable({
   const [rarity, setRarity] = useState<Rarity>("Legendary");
   const [eternal, setEternal] = useState(false);
   const [query, setQuery] = useState("");
-  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [mode, setMode] = useState<MatchMode>("any");
+  /* key → how many option slots must carry it. "All" mode reads the count;
+     "any" mode only cares that the key is there. */
+  const [picked, setPicked] = useState<Map<string, number>>(new Map());
 
   const rolls = useMemo(() => getRolls(slot, rarity), [slot, rarity]);
 
@@ -103,22 +107,53 @@ export default function FlameTable({
     [rolls, picked],
   );
 
+  /* "All" is a coverage problem, not a sum: every selected line has to land
+     on the same flame. Two grades of one option are two separate lines —
+     the two draws are independent, so an option can repeat. */
+  const groups = useMemo(
+    () => selectedGroups(rolls, picked),
+    [rolls, picked],
+  );
+
   const twoOptionPct = eternal
     ? TWO_OPTION_CHANCE.Eternal
     : TWO_OPTION_CHANCE[rarity];
-  const perFlame = atLeastOneChance(perOption, twoOptionPct);
+  const perFlame =
+    mode === "all"
+      ? allOfChance(
+          groups.map((g) => ({ prob: g.roll.prob, need: g.need })),
+          twoOptionPct,
+        )
+      : atLeastOneChance(perOption, twoOptionPct);
+  /* A flame rolls at most two options, so a third wanted line never fits. */
+  const wantedLines = groups.reduce((sum, g) => sum + g.need, 0);
+  const impossible = mode === "all" && wantedLines > 2;
   const need50 = attemptsFor(perFlame, 50);
   const need90 = attemptsFor(perFlame, 90);
   const pickedCount = picked.size;
 
+  /* Whole-option tap: on or off for every grade of it, never a stack. */
   const toggle = (keys: string[]) =>
     setPicked((prev) => {
-      const next = new Set(prev);
+      const next = new Map(prev);
       const allOn = keys.every((k) => next.has(k));
       for (const k of keys) {
         if (allOn) next.delete(k);
-        else next.add(k);
+        else next.set(k, 1);
       }
+      return next;
+    });
+
+  /* Single-value tap. In "all" mode it walks 1× → 2× → off, since a flame
+     has two option slots and can roll the same line into both. Counts mean
+     nothing in "any" mode, so there it stays a plain toggle. */
+  const cycle = (key: string) =>
+    setPicked((prev) => {
+      const next = new Map(prev);
+      const cap = mode === "all" ? 2 : 1;
+      const count = (next.get(key) ?? 0) + 1;
+      if (count > cap) next.delete(key);
+      else next.set(key, count);
       return next;
     });
 
@@ -126,11 +161,8 @@ export default function FlameTable({
      tens of thousands of times, and getRolls rebuilds its array each call.
      `picked` is a dependency because the roller decides what counts as a hit. */
   const roller = useMemo(
-    () =>
-      flameRoller(slot, rarity, twoOptionPct, (r) =>
-        picked.has(keyOf(r.option, r.grade)),
-      ),
-    [slot, rarity, twoOptionPct, picked],
+    () => flameRoller(slot, rarity, twoOptionPct, picked, mode),
+    [slot, rarity, twoOptionPct, picked, mode],
   );
 
   const rollFlame = useCallback((): SimRoll => {
@@ -168,7 +200,9 @@ export default function FlameTable({
             </p>
           </div>
           <div className="min-w-0 text-center">
-            <p className="stage-label">{dict.perFlame}</p>
+            <p className="stage-label">
+              {mode === "all" ? dict.perFlameAll : dict.perFlame}
+            </p>
             <p className="mt-1 font-display text-xl text-maple-deep sm:text-2xl">
               {fmt(perFlame)}%
             </p>
@@ -191,16 +225,24 @@ export default function FlameTable({
             dict.tapHint
           ) : (
             <>
-              {fill(
-                plural(pickedCount, {
-                  one: dict.selectedOne,
-                  other: dict.selectedOther,
-                }),
-                { count: pickedCount, two: fmt(twoOptionPct, 1) },
-              )}
+              {mode === "all"
+                ? fill(
+                    plural(wantedLines, {
+                      one: dict.selectedAllOne,
+                      other: dict.selectedAllOther,
+                    }),
+                    { count: wantedLines, two: fmt(twoOptionPct, 1) },
+                  )
+                : fill(
+                    plural(pickedCount, {
+                      one: dict.selectedOne,
+                      other: dict.selectedOther,
+                    }),
+                    { count: pickedCount, two: fmt(twoOptionPct, 1) },
+                  )}
               <button
                 type="button"
-                onClick={() => setPicked(new Set())}
+                onClick={() => setPicked(new Map())}
                 className="ml-2 underline underline-offset-2 hover:text-maple-deep"
               >
                 {common.clear}
@@ -261,6 +303,31 @@ export default function FlameTable({
                 </span>
               </span>
             </label>
+          </div>
+
+          <div>
+            <p className="stage-label mb-2 text-ink-soft">{dict.matchLabel}</p>
+            <div className="flex flex-wrap gap-2">
+              {(["any", "all"] as MatchMode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  aria-pressed={mode === m}
+                  className={pill(mode === m)}
+                >
+                  {m === "any" ? dict.matchAny : dict.matchAll}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] font-semibold text-ink-soft">
+              {mode === "all" ? dict.matchAllHint : dict.matchAnyHint}
+            </p>
+            {impossible && (
+              <p className="mt-1 text-[11px] font-bold text-maple-deep">
+                {fill(dict.allImpossible, { count: wantedLines })}
+              </p>
+            )}
           </div>
 
           <div>
@@ -344,19 +411,24 @@ export default function FlameTable({
                             {common.dash}
                           </td>
                         );
-                      const on = picked.has(keyOf(option, g.grade));
+                      const count = picked.get(keyOf(option, g.grade)) ?? 0;
+                      const on = count > 0;
                       return (
                         <td key={i} className="px-1 py-1 text-center">
                           <button
                             type="button"
-                            onClick={() => toggle([keyOf(option, g.grade)])}
+                            onClick={() => cycle(keyOf(option, g.grade))}
                             aria-pressed={on}
-                            aria-label={fill(dict.cellAria, {
-                              option: label,
-                              grade: g.grade,
-                              value: g.value,
-                              prob: g.prob,
-                            })}
+                            aria-label={fill(
+                              count > 1 ? dict.cellAriaStack : dict.cellAria,
+                              {
+                                option: label,
+                                grade: g.grade,
+                                value: g.value,
+                                prob: g.prob,
+                                count,
+                              },
+                            )}
                             className={`w-full rounded-md border-2 px-1.5 py-1 tabular-nums transition ${
                               on
                                 ? "border-wood bg-maple/15 text-ink"
@@ -366,6 +438,11 @@ export default function FlameTable({
                             <span className="block font-bold">
                               {fmt(g.value)}%
                             </span>
+                            {mode === "all" && count > 1 && (
+                              <span className="mt-0.5 block text-[10px] font-bold text-maple-deep">
+                                {fill(dict.stackBadge, { count })}
+                              </span>
+                            )}
                           </button>
                         </td>
                       );
@@ -394,7 +471,10 @@ export default function FlameTable({
       {/* Remounted whenever the setup or the selection changes: a running
           tally only means anything against one fixed target. */}
       <RollSimulator
-        key={`${slot}|${rarity}|${eternal}|${[...picked].sort().join("|")}`}
+        key={`${slot}|${rarity}|${eternal}|${mode}|${[...picked]
+          .map(([k, n]) => `${k}×${n}`)
+          .sort()
+          .join("|")}`}
         strings={dict.sim}
         roll={rollFlame}
         hasTarget={picked.size > 0}
