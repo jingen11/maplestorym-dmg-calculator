@@ -17,6 +17,7 @@ import {
   CUBE_PARTS,
   cubeAllChance,
   cubeChance,
+  cubeGroupChance,
   cubesFor,
   getLines,
   hasBonus,
@@ -55,8 +56,11 @@ export default function CubeTable({
   const [lineCount, setLineCount] = useState(3);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<MatchMode>("any");
+  /* How many lines have to fall inside the selection, in "group" mode only.
+     Held unclamped so dropping to 1 line and back does not lose the choice. */
+  const [groupNeed, setGroupNeed] = useState(3);
   /* key → how many lines of it the player wants. "All" mode reads the count;
-     "any" mode only cares that the key is there. */
+     the other two only care that the key is there. */
   const [picked, setPicked] = useState<Map<string, number>>(new Map());
 
   const poolLabel: Record<Pool, string> = {
@@ -103,10 +107,17 @@ export default function CubeTable({
     () => selectedGroups(firstLines, secondLines, picked),
     [firstLines, secondLines, picked],
   );
+  /* Group mode asks for a count, not for named lines, so it reads the pooled
+     per-slot chances rather than the per-requirement groups. The need is
+     clamped here as well as in cubeGroupChance, because the label and the
+     simulator have to agree with the number on the stage. */
+  const need = Math.min(groupNeed, lineCount);
   const perCube =
     mode === "all"
       ? cubeAllChance(groups, lineCount)
-      : cubeChance(firstChance, secondChance, lineCount);
+      : mode === "group"
+        ? cubeGroupChance(firstChance, secondChance, lineCount, need)
+        : cubeChance(firstChance, secondChance, lineCount);
   /* Counting the stacks: more wanted lines than the item has can never
      happen at once. */
   const wantedLines = groups.reduce((sum, g) => sum + g.need, 0);
@@ -156,8 +167,8 @@ export default function CubeTable({
      draws tens of thousands of times, and getLines rebuilds its array on
      every call. `picked` is a dependency because the roller decides hits. */
   const roller = useMemo(
-    () => cubeRoller(part, activeKind, rank, lineCount, picked, mode),
-    [part, activeKind, rank, lineCount, picked, mode],
+    () => cubeRoller(part, activeKind, rank, lineCount, picked, mode, need),
+    [part, activeKind, rank, lineCount, picked, mode, need],
   );
 
   const rollCube = useCallback((): SimRoll => {
@@ -196,7 +207,11 @@ export default function CubeTable({
           </div>
           <div className="min-w-0 text-center">
             <p className="stage-label">
-              {mode === "all" ? dict.perCubeAll : dict.perCube}
+              {mode === "all"
+                ? dict.perCubeAll
+                : mode === "group"
+                  ? dict.perCubeGroup
+                  : dict.perCube}
             </p>
             <p className="mt-1 font-display text-xl text-maple-deep sm:text-2xl">
               {fmt(perCube)}%
@@ -228,17 +243,29 @@ export default function CubeTable({
                     }),
                     { count: wantedLines, lines: lineCount },
                   )
-                : fill(
-                    plural(picked.size, {
-                      one: dict.selectedOne,
-                      other: dict.selectedOther,
-                    }),
-                    {
-                      count: picked.size,
-                      first: fmt(firstChance),
-                      second: fmt(secondChance),
-                    },
-                  )}
+                : mode === "group"
+                  ? fill(
+                      plural(need, {
+                        one: dict.selectedGroupOne,
+                        other: dict.selectedGroupOther,
+                      }),
+                      {
+                        count: need,
+                        lines: lineCount,
+                        options: picked.size,
+                      },
+                    )
+                  : fill(
+                      plural(picked.size, {
+                        one: dict.selectedOne,
+                        other: dict.selectedOther,
+                      }),
+                      {
+                        count: picked.size,
+                        first: fmt(firstChance),
+                        second: fmt(secondChance),
+                      },
+                    )}
               <button
                 type="button"
                 onClick={() => setPicked(new Map())}
@@ -366,7 +393,7 @@ export default function CubeTable({
           <div>
             <p className="stage-label mb-2 text-ink-soft">{dict.matchLabel}</p>
             <div className="flex flex-wrap gap-2">
-              {(["any", "all"] as MatchMode[]).map((m) => (
+              {(["any", "all", "group"] as MatchMode[]).map((m) => (
                 <button
                   key={m}
                   type="button"
@@ -374,13 +401,48 @@ export default function CubeTable({
                   aria-pressed={mode === m}
                   className={pill(mode === m)}
                 >
-                  {m === "any" ? dict.matchAny : dict.matchAll}
+                  {m === "any"
+                    ? dict.matchAny
+                    : m === "all"
+                      ? dict.matchAll
+                      : dict.matchGroup}
                 </button>
               ))}
             </div>
             <p className="mt-1 text-[11px] font-semibold text-ink-soft">
-              {mode === "all" ? dict.matchAllHint : dict.matchAnyHint}
+              {mode === "all"
+                ? dict.matchAllHint
+                : mode === "group"
+                  ? dict.matchGroupHint
+                  : dict.matchAnyHint}
             </p>
+            {/* How many of the item's lines have to land in the group. Only
+                offered up to the line count, since more can never happen. */}
+            {mode === "group" && (
+              <div className="mt-3">
+                <p className="stage-label mb-2 text-ink-soft">
+                  {dict.groupNeedLabel}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3]
+                    .filter((n) => n <= lineCount)
+                    .map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setGroupNeed(n)}
+                        aria-pressed={need === n}
+                        className={pill(need === n)}
+                      >
+                        {plural(n, {
+                          one: dict.groupNeedOne,
+                          other: dict.groupNeedOther,
+                        })}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
             {impossible && (
               <p className="mt-1 text-[11px] font-bold text-maple-deep">
                 {fill(dict.allImpossible, {
@@ -537,7 +599,9 @@ export default function CubeTable({
       {/* Remounted whenever the setup or the selection changes: a running
           tally only means anything against one fixed target. */}
       <RollSimulator
-        key={`${part}|${activeKind}|${rank}|${lineCount}|${mode}|${[...picked]
+        key={`${part}|${activeKind}|${rank}|${lineCount}|${mode}|${need}|${[
+          ...picked,
+        ]
           .map(([k, n]) => `${k}×${n}`)
           .sort()
           .join("|")}`}

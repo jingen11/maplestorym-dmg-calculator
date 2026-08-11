@@ -33,18 +33,25 @@ import type { MatchMode } from "./probability";
  * In "any" mode one match is enough. In "all" mode every selected line has to
  * be present as many times as it was picked — two slots can carry the same
  * attribute, so both "two different stats" and "this one stat twice" are
- * reachable targets rather than contradictions.
+ * reachable targets rather than contradictions. In "group" mode (cubes only)
+ * the selection is one bucket and only the number of slots that fell into it
+ * counts, whichever lines they turned out to be.
  */
 function isHit(
   mode: MatchMode,
   matched: string[],
   required: ReadonlyMap<string, number>,
+  groupNeed = 1,
 ): boolean {
+  if (mode === "group") {
+    return required.size > 0 && matched.length >= groupNeed;
+  }
   if (mode === "any") return matched.length > 0;
   if (required.size === 0) return false;
   const seen = new Map<string, number>();
   for (const key of matched) seen.set(key, (seen.get(key) ?? 0) + 1);
-  for (const [key, need] of required) if ((seen.get(key) ?? 0) < need) return false;
+  for (const [key, need] of required)
+    if ((seen.get(key) ?? 0) < need) return false;
   return true;
 }
 
@@ -110,8 +117,8 @@ export interface CubeRoller {
  * the lines are drawn independently — Nexon does not disclose whether one
  * line can repeat another, so a roll here can produce duplicates.
  *
- * `mode` decides what counts as a hit: any wanted line, or every wanted
- * stat on the item at once.
+ * `mode` decides what counts as a hit: any wanted line, every wanted stat on
+ * the item at once, or `groupNeed` of the lines coming from the selection.
  */
 export function cubeRoller(
   part: string,
@@ -120,6 +127,7 @@ export function cubeRoller(
   lineCount: number,
   picked: CubePicks,
   mode: MatchMode = "any",
+  groupNeed = 1,
 ): CubeRoller {
   const deckFor = (pool: Pool) =>
     buildDeck(getLines(part, kind, rank, pool), (l) => l.prob);
@@ -145,7 +153,7 @@ export function cubeRoller(
         }
         lines.push(line);
       }
-      return { lines, hit: isHit(mode, matched, picked), hitSlots };
+      return { lines, hit: isHit(mode, matched, picked, groupNeed), hitSlots };
     },
   };
 }
@@ -173,8 +181,8 @@ export interface FlameRoller {
  * assumed to be an independent draw from the same pool, so it can repeat the
  * first — Nexon does not disclose otherwise.
  *
- * `mode` decides what counts as a hit: any wanted option, or every wanted
- * option on the same flame.
+ * `mode` decides what counts as a hit: any wanted option, every wanted option
+ * on the same flame, or `groupNeed` of the options coming from the selection.
  */
 export function flameRoller(
   slot: string,
@@ -182,6 +190,7 @@ export function flameRoller(
   twoOptionPct: number,
   picked: FlamePicks,
   mode: MatchMode = "any",
+  groupNeed = 1,
 ): FlameRoller {
   const deck = buildDeck(getRolls(slot, rarity), (r) => r.prob);
   const twoChance = Math.min(Math.max(twoOptionPct, 0), 100) / 100;
@@ -203,7 +212,11 @@ export function flameRoller(
         }
         options.push(option);
       }
-      return { options, hit: isHit(mode, matched, picked), hitSlots };
+      return {
+        options,
+        hit: isHit(mode, matched, picked, groupNeed),
+        hitSlots,
+      };
     },
   };
 }
@@ -222,7 +235,13 @@ export interface RunResult<T> {
   exhausted: boolean;
 }
 
-const EMPTY = { attempts: 0, hits: 0, first: null, firstAt: null, exhausted: false };
+const EMPTY = {
+  attempts: 0,
+  hits: 0,
+  first: null,
+  firstAt: null,
+  exhausted: false,
+};
 
 /**
  * Rolls until the first hit, or until `limit` rolls have been spent.
@@ -238,7 +257,13 @@ export function runUntilHit<T extends { hit: boolean }>(
   for (let attempt = 1; attempt <= limit; attempt++) {
     const result = roll();
     if (result.hit) {
-      return { attempts: attempt, hits: 1, first: result, firstAt: attempt, exhausted: false };
+      return {
+        attempts: attempt,
+        hits: 1,
+        first: result,
+        firstAt: attempt,
+        exhausted: false,
+      };
     }
   }
   return { ...EMPTY, attempts: limit, exhausted: true };

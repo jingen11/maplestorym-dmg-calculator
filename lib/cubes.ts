@@ -59,7 +59,8 @@ export function getLines(
   rank: Rank,
   pool: Pool,
 ): CubeLine[] {
-  const table = kind === "bonus" ? doc.parts[part]?.bonus : doc.parts[part]?.potential;
+  const table =
+    kind === "bonus" ? doc.parts[part]?.bonus : doc.parts[part]?.potential;
   const rows = table?.[rank]?.[pool] ?? [];
   return rows.map(([index, value, prob]) => ({
     option: doc.options[index],
@@ -182,6 +183,47 @@ export function cubeAllChance(groups: CubeGroup[], lines: number): number {
         need: g.need,
       })),
     ) * 100
+  );
+}
+
+/**
+ * Chance at least `need` of the item's lines are drawn from the selection.
+ *
+ * The "group" reading: "any" asks for one line out of the selection and "all"
+ * for a named set of them at once, but neither says "three lines of attack,
+ * whichever ones" — the question a player actually asks about a weapon. Here
+ * the selection is one group, the individual values stop mattering, and only
+ * how many lines fell inside it does.
+ *
+ * The group's pooled chance is what each slot draws against — `firstChance`
+ * for line 1, `secondChance` for lines 2-3, the same split and the same
+ * independence assumption as `cubeChance`.
+ *
+ * That is one requirement wanting `need` copies of itself: the walk in
+ * `requirementChance` advances one slot at a time and lets draws past the cap
+ * pass through, which is exactly "at least `need` of the slots landed in the
+ * group". `need` is clamped to the lines available, so this never reports the
+ * impossible-by-construction 0% that "all" mode uses to flag an overfull pick.
+ */
+export function cubeGroupChance(
+  firstChance: number,
+  secondChance: number,
+  lines: number,
+  need: number,
+): number {
+  const slots = Math.max(0, lines);
+  if (slots === 0) return 0;
+  const clamp = (n: number) => Math.min(Math.max(n, 0), 100) / 100;
+  return (
+    requirementChance([
+      {
+        probs: [
+          clamp(firstChance),
+          ...Array<number>(slots - 1).fill(clamp(secondChance)),
+        ],
+        need: Math.min(Math.max(need, 1), slots),
+      },
+    ]) * 100
   );
 }
 

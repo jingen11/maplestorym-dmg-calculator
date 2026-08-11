@@ -116,7 +116,10 @@ export function selectionChance(
  * does not disclose whether the two options are drawn independently, so this
  * assumes they are — the standard reading, and the UI says so.
  */
-export function atLeastOneChance(perOption: number, twoOptionPct: number): number {
+export function atLeastOneChance(
+  perOption: number,
+  twoOptionPct: number,
+): number {
   const q = Math.min(Math.max(perOption, 0), 100) / 100;
   const t = Math.min(Math.max(twoOptionPct, 0), 100) / 100;
   const miss = 1 - q;
@@ -142,15 +145,46 @@ export function allOfChance(
     q: Math.min(Math.max(g.prob, 0), 100) / 100,
     need: g.need,
   }));
-  const one = requirementChance(reqs.map((r) => ({ probs: [r.q], need: r.need })));
+  const one = requirementChance(
+    reqs.map((r) => ({ probs: [r.q], need: r.need })),
+  );
   const two = requirementChance(
     reqs.map((r) => ({ probs: [r.q, r.q], need: r.need })),
   );
   return ((1 - t) * one + t * two) * 100;
 }
 
+/**
+ * Chance a single flame puts at least `need` of its options inside the group.
+ *
+ * The "group" reading: the selection stops being a list of named lines and
+ * becomes one bucket, with `perOption` its pooled per-slot chance. Only how
+ * many options fell inside it counts, not which ones.
+ *
+ * A flame rolls one option, or two with probability `twoOptionPct`, so the
+ * two cases are weighted the same way as everywhere else here. Asking for 2
+ * on a one-option roll needs more slots than exist, and `requirementChance`
+ * returns 0 for that branch on its own — which is the honest answer, not an
+ * edge case to special-case away. `need` = 1 reproduces `atLeastOneChance`.
+ */
+export function groupOfChance(
+  perOption: number,
+  twoOptionPct: number,
+  need: number,
+): number {
+  const q = Math.min(Math.max(perOption, 0), 100) / 100;
+  const t = Math.min(Math.max(twoOptionPct, 0), 100) / 100;
+  const want = Math.min(Math.max(need, 1), 2);
+  const one = requirementChance([{ probs: [q], need: want }]);
+  const two = requirementChance([{ probs: [q, q], need: want }]);
+  return ((1 - t) * one + t * two) * 100;
+}
+
 /** Expected flames needed for a ~50% and ~90% cumulative shot. */
-export function attemptsFor(chancePct: number, targetPct: number): number | null {
+export function attemptsFor(
+  chancePct: number,
+  targetPct: number,
+): number | null {
   const p = chancePct / 100;
   if (p <= 0) return null;
   if (p >= 1) return 1;
