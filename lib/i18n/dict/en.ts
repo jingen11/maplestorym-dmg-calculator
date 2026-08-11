@@ -304,6 +304,33 @@ const en = {
     spendTier:
       "The counts assume every flame is the tier you picked. A Rare flame can never roll a second option at all.",
 
+    sim: {
+      title: "Roll simulator",
+      intro:
+        "Roll against the same published tables, using the options you selected above. Watching the variance tells you more than the percentage does.",
+      needPick: "Select an option above to roll against a target.",
+      rollOnce: "Roll once",
+      untilHit: "Roll until hit",
+      rollBatch: "Roll 100×",
+      reset: "Reset",
+      empty: "No flames rolled yet.",
+      hit: "Hit",
+      miss: "No match",
+      slot: "Option {n}",
+      spent: "Flames rolled",
+      hits: "Hits",
+      observed: "Observed",
+      expected: "Expected {chance}%",
+      untilHitOne: "Hit on the first flame.",
+      untilHitOther: "Hit after {count} flames.",
+      vsMedian: "The table's coin-flip mark is {count}.",
+      exhausted:
+        "No hit in {count} flames — the run stopped at its limit, not at a guarantee.",
+      batch: "{hits} hits in {count} flames.",
+      disclaimer:
+        "Simulated with your browser's random number generator against Nexon's published probabilities. This is not the game's RNG, and nothing rolled here touches your account.",
+    },
+
     howToName: "How to read the MapleStory M Rebirth Flame probability table",
     howToDescription:
       "Work out your real chance of rolling a specific Rebirth Flame option, and how many flames it takes.",
@@ -440,6 +467,33 @@ const en = {
     spendAny:
       "Selecting several lines means any of them, not all of them.",
     spendAnyTerm: "any",
+
+    sim: {
+      title: "Roll simulator",
+      intro:
+        "Roll against the same published tables, using the lines you selected above. Watching the variance tells you more than the percentage does.",
+      needPick: "Select a line above to roll against a target.",
+      rollOnce: "Roll once",
+      untilHit: "Roll until hit",
+      rollBatch: "Roll 100×",
+      reset: "Reset",
+      empty: "No cubes rolled yet.",
+      hit: "Hit",
+      miss: "No match",
+      slot: "Line {n}",
+      spent: "Cubes rolled",
+      hits: "Hits",
+      observed: "Observed",
+      expected: "Expected {chance}%",
+      untilHitOne: "Hit on the first cube.",
+      untilHitOther: "Hit after {count} cubes.",
+      vsMedian: "The table's coin-flip mark is {count}.",
+      exhausted:
+        "No hit in {count} cubes — the run stopped at its limit, not at a guarantee.",
+      batch: "{hits} hits in {count} cubes.",
+      disclaimer:
+        "Simulated with your browser's random number generator against Nexon's published probabilities. This is not the game's RNG, and nothing rolled here touches your account.",
+    },
 
     howToName: "How to read the MapleStory M cube probability table",
     howToDescription:

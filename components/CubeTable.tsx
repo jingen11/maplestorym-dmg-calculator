@@ -1,7 +1,8 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import Interpolate from "./Interpolate";
+import RollSimulator, { type SimRoll } from "./RollSimulator";
 import type { Dictionary } from "@/lib/i18n";
 import {
   cubeName,
@@ -27,6 +28,7 @@ import {
   type Pool,
   type Rank,
 } from "@/lib/cubes";
+import { cubeRoller } from "@/lib/simulate";
 
 const fmt = (n: number, digits = 2) =>
   n.toLocaleString(undefined, {
@@ -114,6 +116,26 @@ export default function CubeTable({
     }
     return [...map.entries()];
   }, [visible]);
+
+  /* Decks are built once per configuration rather than per roll: a bulk run
+     draws tens of thousands of times, and getLines rebuilds its array on
+     every call. `picked` is a dependency because the roller decides hits. */
+  const roller = useMemo(
+    () => cubeRoller(part, activeKind, rank, lineCount, picked),
+    [part, activeKind, rank, lineCount, picked],
+  );
+
+  const rollCube = useCallback((): SimRoll => {
+    const result = roller.roll();
+    return {
+      hit: result.hit,
+      slots: result.lines.map((line, i) => ({
+        label: cubeOptionName(terms, line.option),
+        value: line.value,
+        hit: result.hitSlots.includes(i),
+      })),
+    };
+  }, [roller, terms]);
 
   const pill = (active: boolean, disabled = false) =>
     `rounded-lg border-2 px-3 py-1.5 text-xs font-bold transition ${
@@ -428,6 +450,19 @@ export default function CubeTable({
           })}
         </p>
       </div>
+
+      {/* Remounted whenever the setup or the selection changes: a running
+          tally only means anything against one fixed target. */}
+      <RollSimulator
+        key={`${part}|${activeKind}|${rank}|${lineCount}|${[...picked]
+          .sort()
+          .join("|")}`}
+        strings={dict.sim}
+        roll={rollCube}
+        hasTarget={picked.size > 0}
+        perAttempt={perCube}
+        need50={need50}
+      />
 
       <div className="window">
         <h2 className="window-title text-base">{dict.rankUpTitle}</h2>

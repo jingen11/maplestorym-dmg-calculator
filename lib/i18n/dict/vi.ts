@@ -298,6 +298,33 @@ const vi: Dictionary = {
     spendTier:
       "Các con số giả định mọi lần flame đều đúng bậc bạn đã chọn. Flame bậc Rare không bao giờ ra được tùy chọn thứ hai.",
 
+    sim: {
+      title: "Mô phỏng roll",
+      intro:
+        "Roll trên chính bảng xác suất đã công bố, với những tùy chọn bạn đã chọn ở trên. Nhìn thấy độ dao động thực tế cho bạn biết nhiều hơn con số phần trăm.",
+      needPick: "Chọn một tùy chọn ở trên để có mục tiêu roll.",
+      rollOnce: "Roll một lần",
+      untilHit: "Roll đến khi trúng",
+      rollBatch: "Roll 100 lần",
+      reset: "Đặt lại",
+      empty: "Chưa roll flame nào.",
+      hit: "Trúng",
+      miss: "Không khớp",
+      slot: "Tùy chọn {n}",
+      spent: "Số flame đã roll",
+      hits: "Số lần trúng",
+      observed: "Thực tế",
+      expected: "Lý thuyết {chance}%",
+      untilHitOne: "Trúng ngay flame đầu tiên.",
+      untilHitOther: "Trúng sau {count} flame.",
+      vsMedian: "Bảng cho biết mốc 50-50 là {count}.",
+      exhausted:
+        "Không trúng trong {count} flame — lượt chạy dừng ở giới hạn, không phải vì được đảm bảo.",
+      batch: "{hits} lần trúng trong {count} flame.",
+      disclaimer:
+        "Mô phỏng bằng bộ sinh số ngẫu nhiên của trình duyệt, dựa trên xác suất Nexon đã công bố. Đây không phải RNG của game, và kết quả ở đây không ảnh hưởng đến tài khoản của bạn.",
+    },
+
     howToName: "Cách đọc bảng xác suất Rebirth Flame của MapleStory M",
     howToDescription:
       "Tính ra tỷ lệ thật để quay trúng một tùy chọn Rebirth Flame cụ thể, và cần bao nhiêu lần flame.",
@@ -433,6 +460,33 @@ const vi: Dictionary = {
     spendAny:
       "Chọn nhiều dòng nghĩa là bất kỳ dòng nào trong số đó, không phải tất cả.",
     spendAnyTerm: "bất kỳ dòng nào",
+
+    sim: {
+      title: "Mô phỏng roll",
+      intro:
+        "Roll trên chính bảng xác suất đã công bố, với những dòng bạn đã chọn ở trên. Nhìn thấy độ dao động thực tế cho bạn biết nhiều hơn con số phần trăm.",
+      needPick: "Chọn một dòng ở trên để có mục tiêu roll.",
+      rollOnce: "Roll một lần",
+      untilHit: "Roll đến khi trúng",
+      rollBatch: "Roll 100 lần",
+      reset: "Đặt lại",
+      empty: "Chưa roll cube nào.",
+      hit: "Trúng",
+      miss: "Không khớp",
+      slot: "Dòng {n}",
+      spent: "Số cube đã roll",
+      hits: "Số lần trúng",
+      observed: "Thực tế",
+      expected: "Lý thuyết {chance}%",
+      untilHitOne: "Trúng ngay cube đầu tiên.",
+      untilHitOther: "Trúng sau {count} cube.",
+      vsMedian: "Bảng cho biết mốc 50-50 là {count}.",
+      exhausted:
+        "Không trúng trong {count} cube — lượt chạy dừng ở giới hạn, không phải vì được đảm bảo.",
+      batch: "{hits} lần trúng trong {count} cube.",
+      disclaimer:
+        "Mô phỏng bằng bộ sinh số ngẫu nhiên của trình duyệt, dựa trên xác suất Nexon đã công bố. Đây không phải RNG của game, và kết quả ở đây không ảnh hưởng đến tài khoản của bạn.",
+    },
 
     howToName: "Cách đọc bảng xác suất Cube của MapleStory M",
     howToDescription:

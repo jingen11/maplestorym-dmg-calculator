@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Interpolate from "./Interpolate";
+import RollSimulator, { type SimRoll } from "./RollSimulator";
 import type { Dictionary } from "@/lib/i18n";
 import {
   fill,
@@ -23,6 +24,7 @@ import {
   type FlameRoll,
   type Rarity,
 } from "@/lib/flames";
+import { flameRoller } from "@/lib/simulate";
 
 /** A selected line is identified by its option name plus value grade. */
 const keyOf = (option: string, grade: number) => `${option}@@${grade}`;
@@ -119,6 +121,29 @@ export default function FlameTable({
       }
       return next;
     });
+
+  /* Built once per configuration rather than per roll: a bulk run draws
+     tens of thousands of times, and getRolls rebuilds its array each call.
+     `picked` is a dependency because the roller decides what counts as a hit. */
+  const roller = useMemo(
+    () =>
+      flameRoller(slot, rarity, twoOptionPct, (r) =>
+        picked.has(keyOf(r.option, r.grade)),
+      ),
+    [slot, rarity, twoOptionPct, picked],
+  );
+
+  const rollFlame = useCallback((): SimRoll => {
+    const result = roller.roll();
+    return {
+      hit: result.hit,
+      slots: result.options.map((option, i) => ({
+        label: flameOptionName(terms, option.option),
+        value: `${fmt(option.value)}%`,
+        hit: result.hitSlots.includes(i),
+      })),
+    };
+  }, [roller, terms]);
 
   const maxGrades = Math.max(1, ...rows.map((r) => r.grades.length));
 
@@ -365,6 +390,17 @@ export default function FlameTable({
           {fill(dict.tableFootnote, { total: fmt(columnTotal) })}
         </p>
       </div>
+
+      {/* Remounted whenever the setup or the selection changes: a running
+          tally only means anything against one fixed target. */}
+      <RollSimulator
+        key={`${slot}|${rarity}|${eternal}|${[...picked].sort().join("|")}`}
+        strings={dict.sim}
+        roll={rollFlame}
+        hasTarget={picked.size > 0}
+        perAttempt={perFlame}
+        need50={need50}
+      />
 
       <div className="window">
         <h2 className="window-title text-base">{common.notes}</h2>

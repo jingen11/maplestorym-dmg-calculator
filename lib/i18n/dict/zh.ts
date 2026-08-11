@@ -292,6 +292,33 @@ const zh: Dictionary = {
     spendTier:
       "这些数量假设每次火焰都是你所选的等级。稀有等级的火焰根本不可能出现第二个选项。",
 
+    sim: {
+      title: "开火模拟",
+      intro:
+        "用你在上方选择的选项，按同一份公示概率表进行模拟。亲眼看到波动，比只看百分比更有感觉。",
+      needPick: "请先在上方选择一个选项，作为模拟的目标。",
+      rollOnce: "模拟一次",
+      untilHit: "一直模拟到出货",
+      rollBatch: "模拟 100 次",
+      reset: "重置",
+      empty: "还没有模拟过火焰。",
+      hit: "出货",
+      miss: "未命中",
+      slot: "选项 {n}",
+      spent: "已用火焰",
+      hits: "命中次数",
+      observed: "实际",
+      expected: "理论 {chance}%",
+      untilHitOne: "第一颗火焰就出货了。",
+      untilHitOther: "用了 {count} 颗火焰才出货。",
+      vsMedian: "概率表给出的五五开分界点是 {count}。",
+      exhausted:
+        "{count} 颗火焰都没出货 —— 这一轮是撞到上限才停的，并非保底。",
+      batch: "{count} 颗火焰中命中 {hits} 次。",
+      disclaimer:
+        "本模拟使用浏览器的随机数生成器，依据 Nexon 公示的概率运行。它不是游戏本身的随机算法，这里的结果也不会影响你的账号。",
+    },
+
     howToName: "如何读懂 MapleStory M 重生火焰概率表",
     howToDescription:
       "算出你打出特定重生火焰选项的真实概率，以及需要多少次火焰。",
@@ -425,6 +452,33 @@ const zh: Dictionary = {
     spendPity: "两次抽取都没有保底。第 {count} 颗方块的升阶概率与第一颗相同。",
     spendAny: "选中多条表示 其中任意一条，而不是全部同时命中。",
     spendAnyTerm: "其中任意一条",
+
+    sim: {
+      title: "开方块模拟",
+      intro:
+        "用你在上方选择的词条，按同一份公示概率表进行模拟。亲眼看到波动，比只看百分比更有感觉。",
+      needPick: "请先在上方选择一条词条，作为模拟的目标。",
+      rollOnce: "模拟一次",
+      untilHit: "一直模拟到出货",
+      rollBatch: "模拟 100 次",
+      reset: "重置",
+      empty: "还没有模拟过方块。",
+      hit: "出货",
+      miss: "未命中",
+      slot: "第 {n} 条",
+      spent: "已用方块",
+      hits: "命中次数",
+      observed: "实际",
+      expected: "理论 {chance}%",
+      untilHitOne: "第一颗方块就出货了。",
+      untilHitOther: "用了 {count} 颗方块才出货。",
+      vsMedian: "概率表给出的五五开分界点是 {count}。",
+      exhausted:
+        "{count} 颗方块都没出货 —— 这一轮是撞到上限才停的，并非保底。",
+      batch: "{count} 颗方块中命中 {hits} 次。",
+      disclaimer:
+        "本模拟使用浏览器的随机数生成器，依据 Nexon 公示的概率运行。它不是游戏本身的随机算法，这里的结果也不会影响你的账号。",
+    },
 
     howToName: "如何读懂 MapleStory M 方块概率表",
     howToDescription: "算出你打出特定潜能词条的真实概率，以及需要多少方块。",
