@@ -223,7 +223,7 @@ const en = {
   flames: {
     metaTitle: "MapleStory M Rebirth Flame Probabilities",
     metaDescription:
-      "Every MapleStory M Rebirth Flame option and its exact drop rate, ported from Nexon's official probability disclosure. Pick an equipment part and flame tier, select the options you want, and see your chance per flame and how many flames you need.",
+      "Every MapleStory M Rebirth Flame option and its exact drop rate, ported from Nexon's official probability disclosure. Pick an equipment part and flame tier, select the options you want, and see your chance per flame — for any one of them, or for two specific options landing on the same flame — plus how many flames you need.",
     h1: "Rebirth Flame Probabilities",
     intro:
       "Nexon's official Rebirth Flame tables, made interactive. Pick an equipment part and flame tier, tap the option values you actually want, and see your chance per flame — plus how many flames it takes for a coin-flip or a near-certain hit.",
@@ -231,11 +231,23 @@ const en = {
     ariaTable: "Rebirth Flame probabilities",
     perOptionSlot: "Per option slot",
     perFlame: "Per flame",
+    perFlameAll: "All, per flame",
     for50: "Flames for 50%",
     for90: "Flames for 90%",
     tapHint: "Tap any value below to pick the options you want.",
     selectedOne: "{count} line selected · {two}% chance of a 2nd option",
     selectedOther: "{count} lines selected · {two}% chance of a 2nd option",
+    selectedAllOne: "Chasing {count} line · {two}% chance of a 2nd option",
+    selectedAllOther:
+      "Chasing {count} lines together · {two}% chance of a 2nd option",
+    matchLabel: "What counts as a hit",
+    matchAny: "Any of them",
+    matchAll: "All of them",
+    matchAnyHint: "At least one selected line lands on the flame.",
+    matchAllHint:
+      "Every selected line lands on the same flame at once. Tap a value again to ask for it on both option slots — a flame can roll the same line twice.",
+    allImpossible:
+      "A flame rolls at most 2 options, so {count} lines at once can never happen.",
     setup: "Flame setup",
     tier: "Rebirth Flame tier",
     eternal: "Eternal Rebirth Flame",
@@ -248,6 +260,9 @@ const en = {
     tableFootnote:
       "Each option rolls one of four values, all equally likely — so a single value is “any value” ÷ 4. Values run best-first. All lines total {total}%; Nexon rounds each entry to two decimals.",
     cellAria: "{option}, grade {grade}: {value}% at {prob}% chance",
+    cellAriaStack:
+      "{option}, grade {grade}: {value}% at {prob}% chance, wanted on {count} option slots",
+    stackBadge: "×{count}",
     noteIndependent:
       "“Per flame” assumes the two options roll independently — Nexon does not disclose whether the second option can repeat the first.",
     noteSource: "Data from {link}, last updated {date}.",
@@ -275,6 +290,10 @@ const en = {
         title: "Read your odds",
         body: "The card at the top updates live: your chance on one option slot, your real chance per flame, and how many flames it takes to reach a 50% or 90% cumulative shot.",
       },
+      {
+        title: "Decide between any and all",
+        body: "“Any of them” — the default — counts a flame as a hit when at least one of your picks lands. “All of them” asks for every pick on the same flame, which needs a two-option roll; tapping a value again asks for that same line on both option slots. Both readings come from the same published tables.",
+      },
     ],
 
     exampleIntro: "On a {slot} with a {rarity} flame, chasing {option}:",
@@ -295,12 +314,15 @@ const en = {
       "Per option slot is your chance on one draw; per flame is higher because a flame can roll a second option.",
     readSlotsTerm: "Per option slot",
     readSlotsTerm2: "per flame",
+    readModes:
+      "Any of them is a hit when one pick lands; All of them needs every pick on one flame, and the headline switches to “All, per flame”. A ×2 badge on a value means you asked for it on both option slots.",
 
     spendPity:
       "There is no pity. Flame number {count} has the same odds as flame number one — “flames for 50%” describes a spread across many players, not a countdown for you.",
     spendAny:
-      "Selecting several lines means any of them, not all of them. Two specific options on one item is a much rarer event, since it needs a two-option roll.",
-    spendAnyTerm: "any",
+      "Selecting several lines means any of them until you switch to All of them. Two specific options on one flame is a much rarer event, since it can only land on a two-option roll.",
+    spendStack:
+      "Asking for the same line on both option slots is rarer still — it squares that one line's chance — and three lines at once is impossible, since a flame never rolls more than two options.",
     spendTier:
       "The counts assume every flame is the tier you picked. A Rare flame can never roll a second option at all.",
 
@@ -366,7 +388,13 @@ const en = {
       {
         question: "What happens when I select more than one value?",
         answer:
-          "Selecting multiple values means 'any of these', not 'all of these'. An option slot draws exactly one line, so the selected chances add together and every extra line you tick makes the target easier. The calculator cannot yet answer the reverse question — the chance of landing two specific options on the same item — which is far rarer because it requires a two-option roll.",
+          "That depends on the match mode. Under “Any of them” the selected chances add together, so every extra line you tick makes the target easier — an option slot draws exactly one line. Under “All of them” each pick becomes a separate requirement that must land on the same flame, which is far rarer because it needs a two-option roll.",
+      },
+      {
+        question:
+          "What are the odds of getting two specific flame options at once?",
+        answer:
+          "Switch the table to “All of them”. Two specific lines can only land on a two-option roll, so the chance is roughly the tier's second-option chance times the two lines' odds — an Eternal Rebirth Flame, which always rolls two options, is dramatically better for this. Three lines at once is impossible and shows 0%. Tap a value twice to ask for that same line on both option slots.",
       },
     ],
   },
@@ -374,7 +402,7 @@ const en = {
   cubes: {
     metaTitle: "MapleStory M Cube Probabilities",
     metaDescription:
-      "Every MapleStory M potential and bonus potential option with its exact chance, ported from Nexon's official probability disclosure. Pick a part, rank and line, select the options you want, and see your chance per cube and how many cubes it takes.",
+      "Every MapleStory M potential and bonus potential option with its exact chance, ported from Nexon's official probability disclosure. Pick a part, rank and line, select the options you want, and see your chance per cube — for any one line, or for two or three specific lines on the same item — and how many cubes it takes.",
     h1: "Cube Probabilities",
     intro:
       "Nexon's official potential and bonus potential tables, made interactive. Pick a part, rank and line pool, tap the options you actually want, and see your chance per cube — plus how many cubes it takes to get there.",
@@ -382,11 +410,22 @@ const en = {
     ariaTable: "Cube probabilities",
     onThisLine: "On this line",
     perCube: "Per cube",
+    perCubeAll: "All, per cube",
     for50: "Cubes for 50%",
     for90: "Cubes for 90%",
     tapHint: "Tap the lines you want. Picks apply to both pools.",
     selectedOne: "{count} line selected · 1st {first}% · 2nd/3rd {second}%",
     selectedOther: "{count} lines selected · 1st {first}% · 2nd/3rd {second}%",
+    selectedAllOne: "Chasing {count} line on {lines} lines",
+    selectedAllOther: "Chasing {count} lines together on {lines} lines",
+    matchLabel: "What counts as a hit",
+    matchAny: "Any of them",
+    matchAll: "All of them",
+    matchAnyHint: "At least one selected line lands on the item.",
+    matchAllHint:
+      "Every selected line lands on the same item at once. Tap a value again to ask for it on 2 or 3 lines — an item can roll the same attribute more than once.",
+    allImpossible:
+      "{count} lines cannot fit on {lines} lines — raise the line count.",
     setup: "Cube setup",
     cubeType: "Cube type",
     potential: "Potential",
@@ -408,6 +447,9 @@ const en = {
     tableFootnote:
       "{count} lines in this pool, totalling {total}%. Nexon rounds each entry to two decimals.",
     cellAria: "{option} {value}, {prob}% chance",
+    cellAriaStack:
+      "{option} {value}, {prob}% chance, wanted on {count} lines",
+    stackBadge: "×{count}",
     rankUpTitle: "Rank-up chance per cube",
     rankUpRow: "{chance}% rank up · ",
     rankUpCubes: "{count} cubes",
@@ -441,6 +483,10 @@ const en = {
         title: "Select what you want and read the odds",
         body: "Tap an option name to take every value of that stat, or tap a single value to target exactly that roll. The card shows your chance on the shown line, your chance per cube across the whole item, and how many cubes reach a 50% or 90% shot.",
       },
+      {
+        title: "Decide between any and all",
+        body: "“Any of them” — the default — counts a cube as a hit when at least one of your picks lands. “All of them” asks for every pick on the same item at once, and tapping a value again asks for that same line on 2 or 3 lines. Both readings come from the same published tables; only the question changes.",
+      },
     ],
 
     exampleIntro: "Chasing {option} {value} on a {rank} {part}:",
@@ -459,14 +505,17 @@ const en = {
     readPoolsTerm2: "per cube",
     readPersist:
       "Selections persist when you switch pools, so you can pick the same stat in both and see the true per-cube number.",
+    readModes:
+      "Any of them is a hit when one pick lands; All of them needs every pick on the item at once, and the headline switches to “All, per cube”. A ×2 badge on a value means you asked for it on two lines.",
 
     spendSeparate:
       "Ranking up and rolling options are separate rolls. A cube that fails to rank up still rerolls your lines.",
     spendPity:
       "There is no pity on either roll. Cube number {count} has the same rank-up chance as the first.",
     spendAny:
-      "Selecting several lines means any of them, not all of them.",
-    spendAnyTerm: "any",
+      "Selecting several lines means any of them until you switch to All of them — and that switch is not a small step: two specific lines together is orders of magnitude rarer than either one alone.",
+    spendStack:
+      "Asking for the same line twice is rarer still, and asking for more lines than your item has is simply impossible — the table says 0% rather than pretending otherwise.",
 
     sim: {
       title: "Roll simulator",
@@ -521,6 +570,12 @@ const en = {
         question: "How many cubes does it take to rank up potential?",
         answer:
           "Rank-up is a separate roll from the options: 1% per cube for Occult and Red Cubes, 2% for Black and Choice Cubes. That is about {slow} cubes for a 50% chance at 1%, or {fast} cubes at 2%. There is no pity — each cube is independent.",
+      },
+      {
+        question:
+          "What are the odds of getting two specific potential lines on the same item?",
+        answer:
+          "Switch the table to “All of them”. It works out the chance that every line you picked lands on one item at once, across the lines your item actually has — the first line draws from a different pool than the second and third, so the pools are combined rather than multiplied naively. Tap a value twice to ask for that same line on two lines. Asking for more lines than the item has shows 0%, because it cannot happen.",
       },
       {
         question: "Which parts have bonus potential?",

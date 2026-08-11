@@ -37,6 +37,7 @@ const KEYWORDS = {
     "MapleStory M flame calculator",
     "boss atk flame",
     "final damage flame",
+    "two flame options at once",
   ],
   cubes: [
     "MapleStory M cube",
@@ -48,6 +49,7 @@ const KEYWORDS = {
     "red cube",
     "occult cube",
     "MapleStory M potential calculator",
+    "two potential lines on one item",
   ],
 };
 

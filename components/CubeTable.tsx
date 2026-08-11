@@ -15,6 +15,7 @@ import {
 } from "@/lib/i18n";
 import {
   CUBE_PARTS,
+  cubeAllChance,
   cubeChance,
   cubesFor,
   getLines,
@@ -23,11 +24,13 @@ import {
   RANK_UP,
   RANKS,
   selectedChance,
+  selectedGroups,
   sourceUrl,
   type CubeKind,
   type Pool,
   type Rank,
 } from "@/lib/cubes";
+import type { MatchMode } from "@/lib/probability";
 import { cubeRoller } from "@/lib/simulate";
 
 const fmt = (n: number, digits = 2) =>
@@ -51,7 +54,10 @@ export default function CubeTable({
   const [pool, setPool] = useState<Pool>("first");
   const [lineCount, setLineCount] = useState(3);
   const [query, setQuery] = useState("");
-  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [mode, setMode] = useState<MatchMode>("any");
+  /* key → how many lines of it the player wants. "All" mode reads the count;
+     "any" mode only cares that the key is there. */
+  const [picked, setPicked] = useState<Map<string, number>>(new Map());
 
   const poolLabel: Record<Pool, string> = {
     first: dict.poolFirst,
@@ -89,20 +95,49 @@ export default function CubeTable({
 
   const firstChance = selectedChance(firstLines, picked);
   const secondChance = selectedChance(secondLines, picked);
-  const perCube = cubeChance(firstChance, secondChance, lineCount);
+
+  /* "All" is a coverage problem, not a sum: every selected line has to land
+     on the item at once. Two values of one stat are two separate lines —
+     an item can carry the same attribute twice. */
+  const groups = useMemo(
+    () => selectedGroups(firstLines, secondLines, picked),
+    [firstLines, secondLines, picked],
+  );
+  const perCube =
+    mode === "all"
+      ? cubeAllChance(groups, lineCount)
+      : cubeChance(firstChance, secondChance, lineCount);
+  /* Counting the stacks: more wanted lines than the item has can never
+     happen at once. */
+  const wantedLines = groups.reduce((sum, g) => sum + g.need, 0);
+  const impossible = mode === "all" && wantedLines > lineCount;
   const need50 = cubesFor(perCube, 50);
   const need90 = cubesFor(perCube, 90);
   const poolChance = pool === "first" ? firstChance : secondChance;
   const poolTotal = shown.reduce((sum, l) => sum + l.prob, 0);
 
+  /* Whole-option tap: on or off for every value of it, never a stack. */
   const toggle = (keys: string[]) =>
     setPicked((prev) => {
-      const next = new Set(prev);
+      const next = new Map(prev);
       const allOn = keys.every((k) => next.has(k));
       for (const k of keys) {
         if (allOn) next.delete(k);
-        else next.add(k);
+        else next.set(k, 1);
       }
+      return next;
+    });
+
+  /* Single-value tap. In "all" mode it walks 1× → 2× → 3× → off, capped at
+     the lines the item has, so a player can ask for the same roll twice.
+     Counts mean nothing in "any" mode, so there it stays a plain toggle. */
+  const cycle = (key: string) =>
+    setPicked((prev) => {
+      const next = new Map(prev);
+      const cap = mode === "all" ? Math.min(lineCount, 3) : 1;
+      const count = (next.get(key) ?? 0) + 1;
+      if (count > cap) next.delete(key);
+      else next.set(key, count);
       return next;
     });
 
@@ -121,8 +156,8 @@ export default function CubeTable({
      draws tens of thousands of times, and getLines rebuilds its array on
      every call. `picked` is a dependency because the roller decides hits. */
   const roller = useMemo(
-    () => cubeRoller(part, activeKind, rank, lineCount, picked),
-    [part, activeKind, rank, lineCount, picked],
+    () => cubeRoller(part, activeKind, rank, lineCount, picked, mode),
+    [part, activeKind, rank, lineCount, picked, mode],
   );
 
   const rollCube = useCallback((): SimRoll => {
@@ -160,7 +195,9 @@ export default function CubeTable({
             </p>
           </div>
           <div className="min-w-0 text-center">
-            <p className="stage-label">{dict.perCube}</p>
+            <p className="stage-label">
+              {mode === "all" ? dict.perCubeAll : dict.perCube}
+            </p>
             <p className="mt-1 font-display text-xl text-maple-deep sm:text-2xl">
               {fmt(perCube)}%
             </p>
@@ -183,20 +220,28 @@ export default function CubeTable({
             dict.tapHint
           ) : (
             <>
-              {fill(
-                plural(picked.size, {
-                  one: dict.selectedOne,
-                  other: dict.selectedOther,
-                }),
-                {
-                  count: picked.size,
-                  first: fmt(firstChance),
-                  second: fmt(secondChance),
-                },
-              )}
+              {mode === "all"
+                ? fill(
+                    plural(wantedLines, {
+                      one: dict.selectedAllOne,
+                      other: dict.selectedAllOther,
+                    }),
+                    { count: wantedLines, lines: lineCount },
+                  )
+                : fill(
+                    plural(picked.size, {
+                      one: dict.selectedOne,
+                      other: dict.selectedOther,
+                    }),
+                    {
+                      count: picked.size,
+                      first: fmt(firstChance),
+                      second: fmt(secondChance),
+                    },
+                  )}
               <button
                 type="button"
-                onClick={() => setPicked(new Set())}
+                onClick={() => setPicked(new Map())}
                 className="ml-2 underline underline-offset-2 hover:text-maple-deep"
               >
                 {common.clear}
@@ -319,6 +364,34 @@ export default function CubeTable({
           </div>
 
           <div>
+            <p className="stage-label mb-2 text-ink-soft">{dict.matchLabel}</p>
+            <div className="flex flex-wrap gap-2">
+              {(["any", "all"] as MatchMode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  aria-pressed={mode === m}
+                  className={pill(mode === m)}
+                >
+                  {m === "any" ? dict.matchAny : dict.matchAll}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] font-semibold text-ink-soft">
+              {mode === "all" ? dict.matchAllHint : dict.matchAnyHint}
+            </p>
+            {impossible && (
+              <p className="mt-1 text-[11px] font-bold text-maple-deep">
+                {fill(dict.allImpossible, {
+                  count: wantedLines,
+                  lines: lineCount,
+                })}
+              </p>
+            )}
+          </div>
+
+          <div>
             <label
               htmlFor="cube-search"
               className="stage-label mb-2 block text-ink-soft"
@@ -392,7 +465,8 @@ export default function CubeTable({
                       </td>
                     </tr>
                     {lines.map((line) => {
-                      const on = picked.has(lineKey(line));
+                      const count = picked.get(lineKey(line)) ?? 0;
+                      const on = count > 0;
                       return (
                         <tr
                           key={lineKey(line)}
@@ -401,20 +475,29 @@ export default function CubeTable({
                           <td colSpan={2} className="px-3 py-0.5">
                             <button
                               type="button"
-                              onClick={() => toggle([lineKey(line)])}
+                              onClick={() => cycle(lineKey(line))}
                               aria-pressed={on}
-                              aria-label={fill(dict.cellAria, {
-                                option: label,
-                                value: line.value,
-                                prob: line.prob,
-                              })}
-                              className={`w-full rounded px-2 py-1 text-left tabular-nums transition ${
+                              aria-label={fill(
+                                count > 1 ? dict.cellAriaStack : dict.cellAria,
+                                {
+                                  option: label,
+                                  value: line.value,
+                                  prob: line.prob,
+                                  count,
+                                },
+                              )}
+                              className={`flex w-full items-center gap-2 rounded px-2 py-1 text-left tabular-nums transition ${
                                 on
                                   ? "bg-maple/15 font-bold text-ink"
                                   : "text-ink-soft hover:bg-wood-light/15"
                               }`}
                             >
-                              {line.value}
+                              <span>{line.value}</span>
+                              {mode === "all" && count > 1 && (
+                                <span className="rounded border-2 border-wood bg-maple px-1 text-[10px] font-bold text-white">
+                                  {fill(dict.stackBadge, { count })}
+                                </span>
+                              )}
                             </button>
                           </td>
                           <td
@@ -454,7 +537,8 @@ export default function CubeTable({
       {/* Remounted whenever the setup or the selection changes: a running
           tally only means anything against one fixed target. */}
       <RollSimulator
-        key={`${part}|${activeKind}|${rank}|${lineCount}|${[...picked]
+        key={`${part}|${activeKind}|${rank}|${lineCount}|${mode}|${[...picked]
+          .map(([k, n]) => `${k}×${n}`)
           .sort()
           .join("|")}`}
         strings={dict.sim}

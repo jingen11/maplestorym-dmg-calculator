@@ -34,7 +34,7 @@ const example = (() => {
   const top = first
     .filter((l) => l.option === "PHY ATK")
     .reduce((a, b) => (Number(b.value) > Number(a.value) ? b : a));
-  const picked = new Set([lineKey(top)]);
+  const picked = new Map([[lineKey(top), 1]]);
   const q1 = selectedChance(first, picked);
   const q2 = selectedChance(second, picked);
   const oneLine = cubeChance(q1, 0, 1);
@@ -206,6 +206,12 @@ export default function CubesPage({ locale }: { locale: Locale }) {
                 />
               </li>
               <li>• {t.readPersist}</li>
+              {/* The emphasized terms are the toggle's own labels, so the
+                  guide and the button can never drift apart in any locale. */}
+              <li>
+                •{" "}
+                <Emphasize text={t.readModes} terms={[t.matchAny, t.matchAll]} />
+              </li>
             </ul>
           </div>
 
@@ -219,8 +225,10 @@ export default function CubesPage({ locale }: { locale: Locale }) {
                 • {fill(t.spendPity, { count: example.rankUpFast ?? "—" })}
               </li>
               <li>
-                • <Emphasize text={t.spendAny} terms={[t.spendAnyTerm]} />
+                •{" "}
+                <Emphasize text={t.spendAny} terms={[t.matchAny, t.matchAll]} />
               </li>
+              <li>• {t.spendStack}</li>
             </ul>
           </div>
         </div>
