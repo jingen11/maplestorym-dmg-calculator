@@ -154,6 +154,26 @@ the values of a *candidate* set. The sheet recomputes every damage line with
 `stat − current + candidate` substituted and reports the % variance vs. current —
 i.e. "would swapping this emblem/potential be a damage gain?"
 
+**Do not port F40 as written — it is a bug in the sheet.** The candidate mob crit
+line reads
+
+```
+F40 = L32 · (1 + 25% + (CritDmg% − current + candidate))
+```
+
+where `L32` is the *current* non-crit mob line from the damage-calculator block. It
+should build on `F39`, the candidate non-crit line, the way the boss row directly
+below it does (`F43 = F42 · (1 + 25% + CritDmg%') · levelMod`). As written, every
+stat except Crit Dmg% drops out of the mob crit line: a candidate flat Atk, Atk%,
+Dmg% or FD% change reports 0% variance there. It leaks into the mob average too
+(`F41 = F39·(1 − CritRate) + F40·CritRate`), which then counts only the non-crit
+share of the gain — at the sheet's own 69.6% crit rate, a +10% Atk% emblem shows
+about +1.4% instead of the true +4.5%. The boss rows are correct.
+
+The site avoids this by construction: every line is recomputed from the raised
+stat via `calculateDamage()`, so the crit line always derives from the same
+non-crit value the change produced (`lib/damage.ts`, `lib/efficiency.ts`).
+
 ## 6. Spreadsheet notes worth surfacing in the UI
 
 - Don't double-count self buffs in both base stats and party-buff/hyper checkboxes.

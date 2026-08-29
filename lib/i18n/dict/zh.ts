@@ -87,6 +87,11 @@ const zh: Dictionary = {
           "无视防御率会削弱 BOSS 防御（PDR）带来的伤害减免。各来源之间是相乘叠加而非相加：属性窗口的 DIR、Node IED（技能节点达到 Lv 40 后 +15%）与 Defense Smash 4（+25%），按 1 − (1−a)(1−b)(1−c) 合并计算。",
       },
       {
+        question: "堆哪一项属性提升的伤害最多？",
+        answer:
+          "没有通用答案——各个乘区互相相乘，因此你最缺的那一项通常最值钱。“属性收益”一栏会针对你的配装给出答案：它每次只抬高一项属性，并显示对普通怪与 BOSS 各自带来的伤害提升百分比，让你用同一把尺子去比较火焰、潜能与纹章。",
+      },
+      {
         question: "MapleStory M 的食物增益可以叠加吗？",
         answer:
           "普通食物增益按效果互斥——吃下第二个同属性的食物会顶替第一个，但不同属性可以共存。少数特殊道具（Boss Rush Boost Potion、Noodle Soup With Mushroom、Stir-Fried Pork、Escargot、Cold Jellyfish Salad）可与普通增益以及彼此叠加。食物一栏正是按这一规则建模的。",
@@ -102,6 +107,8 @@ const zh: Dictionary = {
     panelBossShort: "BOSS",
     averageHit: "{target} — 平均每次伤害",
     bounds: "下限 – 上限",
+    stepGain: "(+{percent}% · +{value})",
+    stepGainHint: "把“属性收益”表中的全部增量一次性加上之后，这次伤害会变成多少。",
     normal: "普通",
     critical: "暴击",
     crit: "暴击",
@@ -151,6 +158,22 @@ const zh: Dictionary = {
     foodHint:
       "普通食物增益按效果互斥——选择第二个同属性的食物会顶替第一个。不同属性可以组合使用。",
     foodStackHint: "这些可与普通增益以及彼此叠加。",
+
+    efficiency: {
+      title: "属性收益",
+      intro:
+        "一条新词条究竟能换来多少伤害。每一行都会把你属性窗口里的一项属性抬高，并显示由此得到的伤害提升——在你洗潜能、上火焰或更换纹章之前，就能看出哪条词条值得追。把增量设成你可能洗出的数值，再对照右侧两栏。",
+      stat: "属性",
+      step: "增量",
+      mob: "普通怪物",
+      boss: "BOSS",
+      best: "最佳",
+      bestAria: "对 BOSS 伤害提升最大的属性",
+      none: "对该目标无效",
+      capped: "暴击率已达 100% 上限，再堆也没有收益。",
+      note: "只依据你的基础属性计算——不计食物与超级技能加成，因为重洗改变的是你的属性窗口，而不是叠在其上的增益。每一行都会用完整公式重算一遍，只把那一项属性调高；各个乘区互相相乘，所以这些数字会随装备变化。它比较的是同一增量下各属性的价值，不包含获取成本。",
+      ariaTable: "各属性的伤害提升",
+    },
 
     fields: {
       physAtk: {

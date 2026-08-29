@@ -93,6 +93,11 @@ const en = {
           "Def Ignore Rate shrinks the damage reduction from a boss's defense (PDR). Sources stack multiplicatively, not additively: your stat window DIR, Node IED (+15% once the skill's node reaches Lv 40) and Defense Smash 4 (+25%) combine as 1 − (1−a)(1−b)(1−c).",
       },
       {
+        question: "Which stat gives me the most damage?",
+        answer:
+          "There is no universal answer — the damage brackets multiply each other, so the stat you have least of is usually worth the most. The Stat efficiency table answers it for your build: it raises one stat at a time and shows the resulting % damage increase against mobs and bosses, so you can compare a flame, a potential line and an emblem on the same scale.",
+      },
+      {
         question: "Do food buffs stack in MapleStory M?",
         answer:
           "Regular food buffs are mutually exclusive per effect — eating a second food of the same stat replaces the first, though different stats combine. A few special items (Boss Rush Boost Potion, Noodle Soup With Mushroom, Stir-Fried Pork, Escargot, Cold Jellyfish Salad) stack with the regular buff and each other. The Food section models exactly this.",
@@ -108,6 +113,9 @@ const en = {
     panelBossShort: "Boss",
     averageHit: "{target} — average hit",
     bounds: "lower – upper bound",
+    stepGain: "(+{percent}% · +{value})",
+    stepGainHint:
+      "What this hit becomes with every gain from the Stat efficiency table applied at once.",
     normal: "Normal",
     critical: "Critical",
     crit: "Crit",
@@ -162,6 +170,23 @@ const en = {
     foodHint:
       "Regular food buffs are mutually exclusive per effect — picking a second food of the same stat replaces the first. Different stats can be combined.",
     foodStackHint: "These stack with the regular buff and with each other.",
+
+    efficiency: {
+      title: "Stat efficiency",
+      intro:
+        "What a new line would actually buy you. Each row raises one stat in your stat window and shows the damage you gain — so before you cube, flame or swap an emblem, you can see which line is worth chasing. Set a step to the value you might roll and read the two columns.",
+      stat: "Stat",
+      step: "Gain",
+      mob: "Normal monsters",
+      boss: "Boss",
+      best: "Best",
+      bestAria: "Biggest boss damage gain",
+      none: "Nothing for this target",
+      capped:
+        "Crit Rate is already at the 100% cap, so more of it does nothing.",
+      note: "Worked out from your base stats only — food and hyper skill bonuses are left out, because a reroll changes your stat window, not the buffs on top of it. Each row re-runs the full formula with that one stat raised; the brackets multiply each other, so these numbers shift as your gear does. They compare stats at a fixed step, not what it costs to get there.",
+      ariaTable: "Damage gain per stat",
+    },
 
     fields: {
       physAtk: {
