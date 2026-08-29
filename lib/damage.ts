@@ -38,6 +38,12 @@ export interface DamageInputs {
   monsterLevel: number;
   /** Monster Crit Resistance % — subtracts from Crit Rate before the 100% cap (bosses only) */
   monsterCritResPercent: number;
+  /**
+   * Max Dmg — the character's damage cap. Clamps the crit lines only:
+   * the cap on non-crit physical damage was removed in the May 2024
+   * update. 0 (or blank) means "don't cap".
+   */
+  maxDamage: number;
   targetIsBoss: boolean;
 }
 
@@ -51,6 +57,8 @@ export interface DamageLine {
   critHitMax: number;
   /** Average damage per hit weighted by crit rate */
   expectedHit: number;
+  /** True when the damage cap actually bit on the midpoint crit line. */
+  critCapped: boolean;
   /**
    * The same average, unrounded. Comparing two damage lines as a ratio
    * (see lib/efficiency.ts) needs the exact value — flooring a hit is
@@ -89,6 +97,7 @@ export const DEFAULT_INPUTS: DamageInputs = {
   characterLevel: 222,
   monsterLevel: 200,
   monsterCritResPercent: 0,
+  maxDamage: 370560099,
   targetIsBoss: false,
 };
 
@@ -197,16 +206,25 @@ export function calculateDamage(inputs: DamageInputs): DamageResult {
   const critPct = inputs.critDmgPercent / 100;
   const critFactor = 1 + 0.25 + critPct;
 
+  /* Max Dmg clamps the crit lines and nothing else — the non-crit cap was
+     removed from the game in the May 2024 update. The clamp lands at the
+     end of whichever stage produced the line, so a boss crit is capped
+     after the level modifier and boss defense have already taken their
+     cut, not before. */
+  const cap = inputs.maxDamage > 0 ? inputs.maxDamage : Infinity;
+  const clamp = (value: number) => Math.min(value, cap);
+
   const toLine = (nonCrit: number): DamageLine => {
-    const crit = nonCrit * critFactor;
+    const crit = clamp(nonCrit * critFactor);
     const expected = nonCrit * (1 - critRate) + crit * critRate;
     return {
       nonCritHit: Math.floor(nonCrit),
       critHit: Math.floor(crit),
-      critHitMin: Math.floor(nonCrit * (1 + critPct)),
-      critHitMax: Math.floor(nonCrit * (1 + 0.5 + critPct)),
+      critHitMin: Math.floor(clamp(nonCrit * (1 + critPct))),
+      critHitMax: Math.floor(clamp(nonCrit * (1 + 0.5 + critPct))),
       expectedHit: Math.floor(expected),
       expectedExact: expected,
+      critCapped: nonCrit * critFactor > cap,
     };
   };
 

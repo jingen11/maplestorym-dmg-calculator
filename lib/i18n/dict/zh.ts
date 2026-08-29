@@ -107,6 +107,8 @@ const zh: Dictionary = {
     panelBossShort: "BOSS",
     averageHit: "{target} — 平均每次伤害",
     bounds: "下限 – 上限",
+    atCap: "MAX",
+    atCapHint: "这次伤害已触及你的伤害上限——上方的数字是上限允许的值，而不是你的属性本身打出的值。",
     stepGain: "(+{percent}% · +{value})",
     stepGainHint: "把“属性收益”表中的全部增量一次性加上之后，这次伤害会变成多少。",
     normal: "普通",
@@ -207,6 +209,10 @@ const zh: Dictionary = {
       statDefIgnoreRatePercent: {
         label: "无视防御率",
         hint: "来自属性窗口——与节点的 DIR 来源叠加",
+      },
+      maxDamage: {
+        label: "伤害上限",
+        hint: "你的伤害上限——只限制暴击伤害。填 0 表示不设上限",
       },
       skillPercent: {
         label: "技能伤害",

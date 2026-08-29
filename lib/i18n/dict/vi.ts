@@ -109,6 +109,9 @@ const vi: Dictionary = {
     panelBossShort: "Boss",
     averageHit: "{target} — sát thương trung bình mỗi đòn",
     bounds: "cận dưới – cận trên",
+    atCap: "MAX",
+    atCapHint:
+      "Đòn này đã chạm trần sát thương của bạn — các con số phía trên là mức trần cho phép, không phải mức chỉ số của bạn tạo ra.",
     stepGain: "(+{percent}% · +{value})",
     stepGainHint:
       "Đòn đánh này sẽ thành bao nhiêu khi áp dụng cùng lúc toàn bộ mức tăng trong bảng Hiệu quả chỉ số.",
@@ -211,6 +214,10 @@ const vi: Dictionary = {
       statDefIgnoreRatePercent: {
         label: "Tỷ lệ bỏ qua phòng thủ",
         hint: "Từ bảng chỉ số — cộng dồn với các nguồn DIR từ node",
+      },
+      maxDamage: {
+        label: "Sát thương tối đa",
+        hint: "Trần sát thương của bạn — chỉ giới hạn đòn chí mạng. Để 0 nếu không có trần",
       },
       skillPercent: {
         label: "Sát thương kỹ năng",
