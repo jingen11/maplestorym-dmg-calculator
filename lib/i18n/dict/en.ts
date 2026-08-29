@@ -113,6 +113,9 @@ const en = {
     panelBossShort: "Boss",
     averageHit: "{target} — average hit",
     bounds: "lower – upper bound",
+    atCap: "MAX",
+    atCapHint:
+      "This hit is at your damage cap — the numbers above it are what the cap allows, not what your stats produce.",
     stepGain: "(+{percent}% · +{value})",
     stepGainHint:
       "What this hit becomes with every gain from the Stat efficiency table applied at once.",
@@ -220,6 +223,10 @@ const en = {
       statDefIgnoreRatePercent: {
         label: "Def Ignore Rate",
         hint: "From the stat window — stacks with node DIR sources",
+      },
+      maxDamage: {
+        label: "Max Dmg",
+        hint: "Your damage cap — clamps crit hits only. 0 for no cap",
       },
       skillPercent: {
         label: "Skill Dmg",

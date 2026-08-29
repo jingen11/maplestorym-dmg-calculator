@@ -144,7 +144,20 @@ hat/outfit/glove/belt/shoe/shoulder/cape 8% each) combined multiplicatively:
 `DIR = 1 − Π(1 − ied_i)` — useful as a helper for users to compute their DIR.
 
 **c) Damage cap**: crit lines are clamped to Max Dmg (B10). Phys damage cap on
-non-crit was removed from the game as of the May (2024) update.
+non-crit was removed from the game as of the May (2024) update — so a non-crit
+line may legitimately print higher than a capped crit line.
+
+The sheet clamps once per stage: L38 caps the raw boss crit, L42 caps it again
+after the level modifier, and the min/max roll columns cap after IED
+(`M46 = IF(M45 > B10, B10, M45)`). The midpoint column is the odd one out —
+`L46 = L42 · (1 − PDR·(1 − DIR))` caps *before* IED and then shrinks the capped
+value, which understates the hit. The site follows the min/max columns: the clamp
+lands at the end of whichever stage produced the line, so a boss crit is capped
+after the level modifier and boss defense have taken their cut. The average is
+then weighted with the *capped* crit line, as the sheet does (B45 uses B44).
+
+Mob lines are not capped anywhere in the sheet; the site caps them on the same
+rule, since the cap is a property of the hit rather than of the target.
 
 ## 5. Emblem / stat-equivalence comparator
 

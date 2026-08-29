@@ -60,6 +60,10 @@ const statDirField: NumberField = {
   suffix: "%",
 };
 
+/* Also outside statFields, for the same reason: Max Dmg is a ceiling on
+   the crit lines, not a stat that stacks with anything. */
+const maxDamageField: NumberField = { key: "maxDamage" };
+
 const levelFields: NumberField[] = [
   { key: "characterLevel" },
   { key: "monsterLevel" },
@@ -597,7 +601,20 @@ export default function DamageCalculator({
             {gain(result.nonCritHit, after.nonCritHit)}
           </div>
           <div>
-            <p className="stage-label">{dict.critical}</p>
+            <p className="stage-label">
+              {dict.critical}
+              {/* The cap only ever bites the crit lines, so the marker
+                  belongs here: without it a capped crit reads as a plain
+                  number that refuses to move when stats improve. */}
+              {result.critCapped && (
+                <span
+                  title={dict.atCapHint}
+                  className="ml-1 rounded border border-maple bg-maple/10 px-1 text-[9px] text-maple-deep"
+                >
+                  {dict.atCap}
+                </span>
+              )}
+            </p>
             <p className="mt-1 text-base sm:mt-2 sm:text-lg md:text-xl">
               <span className="relative inline-block">
                 <CritBang className="absolute -left-[0.45em] -top-1 h-[0.95em] w-[0.95em]" />
@@ -872,6 +889,7 @@ export default function DamageCalculator({
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {statFields.map(renderInputField)}
               {renderInputField(statDirField)}
+              {renderInputField(maxDamageField)}
             </div>
           </section>
 
