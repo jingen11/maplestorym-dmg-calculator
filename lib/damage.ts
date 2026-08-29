@@ -51,6 +51,12 @@ export interface DamageLine {
   critHitMax: number;
   /** Average damage per hit weighted by crit rate */
   expectedHit: number;
+  /**
+   * The same average, unrounded. Comparing two damage lines as a ratio
+   * (see lib/efficiency.ts) needs the exact value — flooring a hit is
+   * invisible on screen but becomes noise in a "+0.42%" answer.
+   */
+  expectedExact: number;
 }
 
 export interface DamageResult extends DamageLine {
@@ -193,12 +199,14 @@ export function calculateDamage(inputs: DamageInputs): DamageResult {
 
   const toLine = (nonCrit: number): DamageLine => {
     const crit = nonCrit * critFactor;
+    const expected = nonCrit * (1 - critRate) + crit * critRate;
     return {
       nonCritHit: Math.floor(nonCrit),
       critHit: Math.floor(crit),
       critHitMin: Math.floor(nonCrit * (1 + critPct)),
       critHitMax: Math.floor(nonCrit * (1 + 0.5 + critPct)),
-      expectedHit: Math.floor(nonCrit * (1 - critRate) + crit * critRate),
+      expectedHit: Math.floor(expected),
+      expectedExact: expected,
     };
   };
 

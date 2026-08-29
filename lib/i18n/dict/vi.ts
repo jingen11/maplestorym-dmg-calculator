@@ -89,6 +89,11 @@ const vi: Dictionary = {
           "Tỷ lệ bỏ qua phòng thủ làm giảm mức cắt sát thương đến từ phòng thủ của boss (PDR). Các nguồn cộng dồn theo phép nhân chứ không phải phép cộng: DIR trong bảng chỉ số, Node IED (+15% khi node của kỹ năng đạt Lv 40) và Defense Smash 4 (+25%) kết hợp theo 1 − (1−a)(1−b)(1−c).",
       },
       {
+        question: "Chỉ số nào cho tôi nhiều sát thương nhất?",
+        answer:
+          "Không có câu trả lời chung — các cụm trong công thức nhân với nhau, nên chỉ số bạn đang thiếu nhất thường là chỉ số đáng giá nhất. Bảng “Hiệu quả chỉ số” trả lời cho đúng build của bạn: nó nâng từng chỉ số một và cho biết phần trăm sát thương tăng thêm lên quái thường và lên boss, để bạn so một dòng flame, một dòng tiềm năng và một emblem trên cùng một thước đo.",
+      },
+      {
         question: "Buff thức ăn trong MapleStory M có cộng dồn không?",
         answer:
           "Buff thức ăn thường loại trừ lẫn nhau theo từng hiệu ứng — ăn món thứ hai cùng chỉ số sẽ thay thế món đầu, nhưng các chỉ số khác nhau thì kết hợp được. Một vài món đặc biệt (Boss Rush Boost Potion, Noodle Soup With Mushroom, Stir-Fried Pork, Escargot, Cold Jellyfish Salad) cộng dồn được với buff thường và với nhau. Mục Thức ăn mô phỏng đúng quy tắc này.",
@@ -104,6 +109,9 @@ const vi: Dictionary = {
     panelBossShort: "Boss",
     averageHit: "{target} — sát thương trung bình mỗi đòn",
     bounds: "cận dưới – cận trên",
+    stepGain: "(+{percent}% · +{value})",
+    stepGainHint:
+      "Đòn đánh này sẽ thành bao nhiêu khi áp dụng cùng lúc toàn bộ mức tăng trong bảng Hiệu quả chỉ số.",
     normal: "Thường",
     critical: "Chí mạng",
     crit: "Chí mạng",
@@ -154,6 +162,22 @@ const vi: Dictionary = {
     foodHint:
       "Buff thức ăn thường loại trừ lẫn nhau theo từng hiệu ứng — chọn món thứ hai cùng chỉ số sẽ thay thế món đầu. Các chỉ số khác nhau thì kết hợp được.",
     foodStackHint: "Những món này cộng dồn được với buff thường và với nhau.",
+
+    efficiency: {
+      title: "Hiệu quả chỉ số",
+      intro:
+        "Một dòng mới thực sự đem lại bao nhiêu sát thương. Mỗi dòng nâng một chỉ số trong bảng chỉ số của bạn và cho thấy phần sát thương tăng thêm — trước khi cube, flame hay đổi emblem, bạn thấy ngay dòng nào đáng theo đuổi. Đặt mức tăng bằng giá trị bạn có thể quay trúng rồi đọc hai cột bên phải.",
+      stat: "Chỉ số",
+      step: "Mức tăng",
+      mob: "Quái thường",
+      boss: "Boss",
+      best: "Tốt nhất",
+      bestAria: "Tăng sát thương lên boss nhiều nhất",
+      none: "Không có tác dụng với mục tiêu này",
+      capped: "Crit Rate đã chạm trần 100%, cộng thêm cũng vô ích.",
+      note: "Chỉ tính từ chỉ số gốc của bạn — không gồm buff thức ăn và hyper skill, vì quay lại chỉ đổi bảng chỉ số của bạn chứ không đổi các buff nằm bên trên. Mỗi dòng chạy lại toàn bộ công thức với đúng một chỉ số được nâng lên; các cụm nhân với nhau nên những con số này thay đổi theo đồ của bạn. Chúng so các chỉ số ở cùng một mức tăng, không tính chi phí để có được chúng.",
+      ariaTable: "Sát thương tăng thêm theo từng chỉ số",
+    },
 
     fields: {
       physAtk: {

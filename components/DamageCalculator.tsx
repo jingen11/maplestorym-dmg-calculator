@@ -23,6 +23,13 @@ import {
   type DamageResult,
   type ModifiableStat,
 } from "@/lib/damage";
+import {
+  DEFAULT_STEPS,
+  EFFICIENCY_STATS,
+  statEfficiency,
+  type EfficiencyStat,
+  type StatSteps,
+} from "@/lib/efficiency";
 
 type DamageDict = Dictionary["damage"];
 type FieldKey = keyof DamageDict["fields"];
@@ -88,6 +95,10 @@ const ZERO_MOD_TEXT = Object.fromEntries(
   MODIFIABLE_STATS.map((key) => [key, "0"]),
 ) as Record<ModifiableStat, string>;
 
+const DEFAULT_STEP_TEXT = Object.fromEntries(
+  EFFICIENCY_STATS.map((key) => [key, String(DEFAULT_STEPS[key])]),
+) as Record<EfficiencyStat, string>;
+
 /* Inputs persist across visits. Restored after mount (so the static HTML
    hydrates cleanly), sanitized key-by-key in case the stored shape is
    from an older version of the calculator. */
@@ -101,6 +112,7 @@ interface StoredState {
   defenseSmash4?: boolean;
   exclusiveFoods?: Partial<Record<ModifiableStat, string>>;
   stackedFoods?: Record<string, boolean>;
+  steps?: Partial<Record<EfficiencyStat, string>>;
 }
 
 /* Jagged starburst flash behind the front of a crit number, like the
@@ -205,6 +217,11 @@ export default function DamageCalculator({
   const [stackedFoods, setStackedFoods] = useState<Record<string, boolean>>(
     {},
   );
+  // How much of each stat the efficiency table adds before re-running the
+  // formula — editable so it can match the gear being compared.
+  const [steps, setSteps] = useState<Record<EfficiencyStat, string>>(
+    DEFAULT_STEP_TEXT,
+  );
 
   // Restore saved inputs once on mount, then persist on every change.
   // `restored` gates the save effect so defaults don't clobber storage
@@ -271,6 +288,19 @@ export default function DamageCalculator({
             return next;
           });
         }
+        if (stored.steps) {
+          const saved = stored.steps;
+          setSteps((prev) => {
+            const next = { ...prev };
+            for (const key of EFFICIENCY_STATS) {
+              const value = saved[key];
+              if (typeof value === "string" && DECIMAL_PATTERN.test(value)) {
+                next[key] = value;
+              }
+            }
+            return next;
+          });
+        }
       }
     } catch {
       // Corrupt or inaccessible storage: fall back to defaults
@@ -290,6 +320,7 @@ export default function DamageCalculator({
         defenseSmash4,
         exclusiveFoods,
         stackedFoods,
+        steps,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
@@ -305,6 +336,7 @@ export default function DamageCalculator({
     defenseSmash4,
     exclusiveFoods,
     stackedFoods,
+    steps,
   ]);
 
   const foodActive = (item: FoodItem) =>
@@ -317,7 +349,7 @@ export default function DamageCalculator({
       ? item.effect !== "PA" && item.effect !== "PD"
       : item.effect !== "MA" && item.effect !== "MD";
 
-  const { mobResult, bossResult } = useMemo(() => {
+  const { mobResult, bossResult, base, merged } = useMemo(() => {
     const inputs: DamageInputs = {
       ...DEFAULT_INPUTS,
       nodeIed,
@@ -338,9 +370,17 @@ export default function DamageCalculator({
       if (active && !hidden) modValues[item.stat] += item.percent;
     }
     const merged = applyModifiers(inputs, modValues);
+    const mobResult = calculateDamage({ ...merged, targetIsBoss: false });
+    const bossResult = calculateDamage({ ...merged, targetIsBoss: true });
+
     return {
-      mobResult: calculateDamage({ ...merged, targetIsBoss: false }),
-      bossResult: calculateDamage({ ...merged, targetIsBoss: true }),
+      mobResult,
+      bossResult,
+      // The stat-window values, before hyper skill and food. The
+      // efficiency table asks what a cube or flame reroll would do, and a
+      // reroll changes this window — not the buffs sitting on top of it.
+      base: inputs,
+      merged,
     };
   }, [
     fields,
@@ -351,6 +391,32 @@ export default function DamageCalculator({
     exclusiveFoods,
     stackedFoods,
   ]);
+
+  const stepValues = useMemo(() => {
+    const values = {} as StatSteps;
+    for (const key of EFFICIENCY_STATS) values[key] = parseValue(steps[key]);
+    return values;
+  }, [steps]);
+
+  const gains = useMemo(() => statEfficiency(base, stepValues), [
+    base,
+    stepValues,
+  ]);
+
+  /* The same hits recomputed with every step from the efficiency table
+     applied at once. Measured on the buffed stats the card is already
+     showing, so each bracket is literally what the number above it would
+     become — not a separate baseline the reader has to reconcile. */
+  const stepped = useMemo(() => {
+    const bumped = { ...merged };
+    for (const key of EFFICIENCY_STATS) bumped[key] += stepValues[key];
+    return {
+      mob: calculateDamage({ ...bumped, targetIsBoss: false }),
+      boss: calculateDamage({ ...bumped, targetIsBoss: true }),
+    };
+  }, [merged, stepValues]);
+
+  const bestGain = Math.max(...gains.map((row) => row.bossPercent));
 
   const totalDir = finalDefIgnoreRate(
     parseValue(fields.statDefIgnoreRatePercent),
@@ -476,60 +542,84 @@ export default function DamageCalculator({
     title: string,
     shortTitle: string,
     result: DamageResult,
-  ) => (
-    <div className="min-w-0 text-center">
-      <p className="stage-label">
-        <span className="sm:hidden">{shortTitle}</span>
-        <span className="hidden sm:inline">
-          {fill(dict.averageHit, { target: title })}
+    after: DamageResult,
+  ) => {
+    /* Every damage line on the card carries its own improvement: the
+       lines don't move together, because Crit Rate steps only shift the
+       average and Crit Dmg steps only shift the crit. Hidden when there
+       is no gain, so a card with no steps entered stays as clean as it
+       was before. */
+    const gain = (before: number, next: number) =>
+      next > before && before > 0 ? (
+        <span
+          title={dict.stepGainHint}
+          className="mt-0.5 block whitespace-nowrap text-[9px] font-bold tabular-nums text-maple-deep sm:text-[11px]"
+        >
+          {fill(dict.stepGain, {
+            percent: ((next / before - 1) * 100).toFixed(2),
+            value: (next - before).toLocaleString(),
+          })}
         </span>
-      </p>
-      <p className="mt-1 sm:mt-2">
-        <DamageNumber
-          key={result.expectedHit}
-          value={result.expectedHit}
-          className={headlineSize(result.expectedHit)}
-        />
-      </p>
-      <p className="mt-1 text-[10px] font-bold tabular-nums text-sky-ink sm:mt-2 sm:text-xs">
-        {result.nonCritHit.toLocaleString()} –{" "}
-        {result.critHitMax.toLocaleString()}
-      </p>
-      <p className="stage-label hidden sm:block">{dict.bounds}</p>
+      ) : null;
 
-      <div className="mt-2 flex items-start justify-center gap-3 sm:mt-3 sm:gap-8">
-        <div>
-          <p className="stage-label">{dict.normal}</p>
-          <p className="mt-1 sm:mt-2">
-            <DamageNumber
-              key={result.nonCritHit}
-              value={result.nonCritHit}
-              className={subSize(result.nonCritHit)}
-            />
-          </p>
-        </div>
-        <div>
-          <p className="stage-label">{dict.critical}</p>
-          <p className="mt-1 text-base sm:mt-2 sm:text-lg md:text-xl">
-            <span className="relative inline-block">
-              <CritBang className="absolute -left-[0.45em] -top-1 h-[0.95em] w-[0.95em]" />
+    return (
+      <div className="min-w-0 text-center">
+        <p className="stage-label">
+          <span className="sm:hidden">{shortTitle}</span>
+          <span className="hidden sm:inline">
+            {fill(dict.averageHit, { target: title })}
+          </span>
+        </p>
+        <p className="mt-1 sm:mt-2">
+          <DamageNumber
+            key={result.expectedHit}
+            value={result.expectedHit}
+            className={headlineSize(result.expectedHit)}
+          />
+        </p>
+        {gain(result.expectedHit, after.expectedHit)}
+        <p className="mt-1 text-[10px] font-bold tabular-nums text-sky-ink sm:mt-2 sm:text-xs">
+          {result.nonCritHit.toLocaleString()} –{" "}
+          {result.critHitMax.toLocaleString()}
+        </p>
+        <p className="stage-label hidden sm:block">{dict.bounds}</p>
+
+        <div className="mt-2 flex items-start justify-center gap-3 sm:mt-3 sm:gap-8">
+          <div>
+            <p className="stage-label">{dict.normal}</p>
+            <p className="mt-1 sm:mt-2">
               <DamageNumber
-                key={result.critHit}
-                value={result.critHit}
-                crit
-                className="relative"
+                key={result.nonCritHit}
+                value={result.nonCritHit}
+                className={subSize(result.nonCritHit)}
               />
-            </span>
-          </p>
-          <p className="mt-1 hidden text-[11px] font-bold tabular-nums text-sky-ink sm:block">
-            {result.critHitMin.toLocaleString()} –{" "}
-            {result.critHitMax.toLocaleString()}
-          </p>
-          <p className="stage-label hidden sm:block">{dict.critRoll}</p>
+            </p>
+            {gain(result.nonCritHit, after.nonCritHit)}
+          </div>
+          <div>
+            <p className="stage-label">{dict.critical}</p>
+            <p className="mt-1 text-base sm:mt-2 sm:text-lg md:text-xl">
+              <span className="relative inline-block">
+                <CritBang className="absolute -left-[0.45em] -top-1 h-[0.95em] w-[0.95em]" />
+                <DamageNumber
+                  key={result.critHit}
+                  value={result.critHit}
+                  crit
+                  className="relative"
+                />
+              </span>
+            </p>
+            {gain(result.critHit, after.critHit)}
+            <p className="mt-1 hidden text-[11px] font-bold tabular-nums text-sky-ink sm:block">
+              {result.critHitMin.toLocaleString()} –{" "}
+              {result.critHitMax.toLocaleString()}
+            </p>
+            <p className="stage-label hidden sm:block">{dict.critRoll}</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderBossBreakdown = (result: DamageResult) =>
     result.stages && (
@@ -562,6 +652,158 @@ export default function DamageCalculator({
       </details>
     );
 
+  /* One row per stat: the step that was added, then what that step bought
+     on each target. The bar under the label ranks the rows against the
+     biggest boss gain, so the ordering is readable at a glance without
+     the rows jumping around while a step is being typed. */
+  const renderEfficiency = () => {
+    const eff = dict.efficiency;
+    /* A stat that does nothing to this target (Boss Atk on a mob, DIR on
+       anything but a boss) reads as a dash rather than a bogus +0.00%. */
+    const renderGain = (percent: number) =>
+      percent <= 0 ? (
+        <span title={eff.none}>—</span>
+      ) : (
+        `+${percent.toFixed(2)}%`
+      );
+
+    return (
+      <div className="window">
+        <h2 className="window-title text-lg">{eff.title}</h2>
+        <div className="p-5">
+          <p className="text-xs text-ink-soft">{eff.intro}</p>
+
+          {/* Fixed layout: the gain columns hold a value that changes on
+              every keystroke, and an auto-width table would resize itself
+              under the reader each time. Widths are set once here. */}
+          <table className="mt-4 w-full table-fixed border-collapse">
+            <caption className="sr-only">{eff.ariaTable}</caption>
+            <colgroup>
+              <col />
+              <col className="w-[5.5rem] sm:w-24" />
+              <col className="w-[4.25rem] sm:w-24" />
+              <col className="w-[4.25rem] sm:w-24" />
+            </colgroup>
+            <thead>
+              <tr className="border-b-2 border-wood-light/60">
+                <th scope="col" className="stage-label pb-2 text-left">
+                  {eff.stat}
+                </th>
+                <th scope="col" className="stage-label pb-2 text-left">
+                  {eff.step}
+                </th>
+                <th
+                  scope="col"
+                  className="stage-label pb-2 text-right leading-tight"
+                >
+                  {eff.mob}
+                </th>
+                <th
+                  scope="col"
+                  className="stage-label pb-2 text-right leading-tight"
+                >
+                  {eff.boss}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {gains.map((row) => {
+                const isBest = bestGain > 0 && row.bossPercent === bestGain;
+                const capped =
+                  row.stat === "critRatePercent" &&
+                  row.step > 0 &&
+                  row.mobPercent === 0;
+                return (
+                  <tr
+                    key={row.stat}
+                    className="border-b border-wood-light/30 last:border-0"
+                  >
+                    <th
+                      scope="row"
+                      className="py-2 pr-2 text-left align-top font-normal"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {/* Wraps rather than truncates: the stat column is
+                            whatever the fixed columns leave over, and a
+                            clipped stat name is worse than a tall row. */}
+                        <span className="min-w-0 text-xs font-bold leading-tight text-ink sm:text-sm">
+                          {typedText(dict.fields[row.stat].label)}
+                        </span>
+                        {isBest && (
+                          <span
+                            title={eff.bestAria}
+                            className="shrink-0 rounded border border-maple bg-maple/10 px-1 text-[10px] font-bold text-maple-deep"
+                          >
+                            {eff.best}
+                          </span>
+                        )}
+                      </span>
+                      <span
+                        aria-hidden
+                        className="mt-1 block h-1 rounded-full bg-wood-light/40"
+                      >
+                        <span
+                          className="block h-1 rounded-full bg-maple"
+                          style={{
+                            width: `${
+                              bestGain > 0
+                                ? (Math.max(row.bossPercent, 0) / bestGain) * 100
+                                : 0
+                            }%`,
+                          }}
+                        />
+                      </span>
+                      {capped && (
+                        <span className="mt-1 block text-[11px] text-ink-soft">
+                          {eff.capped}
+                        </span>
+                      )}
+                    </th>
+                    <td className="py-2 pr-2 align-top">
+                      <span className="flex items-center gap-1">
+                        <span className="shrink-0 text-xs font-bold text-ink-soft">
+                          +
+                        </span>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          aria-label={typedText(dict.fields[row.stat].label)}
+                          value={steps[row.stat]}
+                          onChange={(e) => {
+                            if (DECIMAL_PATTERN.test(e.target.value)) {
+                              setSteps((prev) => ({
+                                ...prev,
+                                [row.stat]: e.target.value,
+                              }));
+                            }
+                          }}
+                          className="w-12 min-w-0 rounded-lg border-2 border-wood-light bg-panel-deep px-1.5 py-1 text-xs font-bold text-ink tabular-nums transition focus:border-maple sm:w-14 sm:px-2"
+                        />
+                        {row.stat !== "physAtk" && (
+                          <span className="shrink-0 text-xs text-ink-soft">
+                            %
+                          </span>
+                        )}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
+                      {renderGain(row.mobPercent)}
+                    </td>
+                    <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
+                      {renderGain(row.bossPercent)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          <p className="mt-3 text-xs text-ink-soft">{eff.note}</p>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section aria-label={dict.ariaCalculator} className="space-y-6">
       <div
@@ -569,8 +811,18 @@ export default function DamageCalculator({
         aria-live="polite"
       >
         <div className="grid grid-cols-2 items-start gap-3 divide-x-2 divide-wood-light/40 sm:gap-6 sm:divide-x-0">
-          {renderDamagePanel(dict.panelMob, dict.panelMobShort, mobResult)}
-          {renderDamagePanel(dict.panelBoss, dict.panelBossShort, bossResult)}
+          {renderDamagePanel(
+            dict.panelMob,
+            dict.panelMobShort,
+            mobResult,
+            stepped.mob,
+          )}
+          {renderDamagePanel(
+            dict.panelBoss,
+            dict.panelBossShort,
+            bossResult,
+            stepped.boss,
+          )}
         </div>
         {renderBossBreakdown(bossResult)}
       </div>
@@ -716,6 +968,8 @@ export default function DamageCalculator({
           </section>
         </div>
       </div>
+
+      {renderEfficiency()}
     </section>
   );
 }
