@@ -20,7 +20,7 @@ export default function HomePage({ locale }: { locale: Locale }) {
     "@graph": [
       {
         "@type": "WebApplication",
-        name: `${SITE_NAME} — ${dict.home.metaTitle}`,
+        name: `${SITE_NAME} — ${dict.home.h1}`,
         url: absoluteUrl(localePath(locale)),
         inLanguage: locale,
         applicationCategory: "GameApplication",

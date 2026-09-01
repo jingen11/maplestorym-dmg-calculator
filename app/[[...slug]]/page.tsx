@@ -68,6 +68,7 @@ export async function generateMetadata({
     locale,
     route,
     title: page.metaTitle,
+    socialTitle: page.h1,
     description: page.metaDescription,
     keywords: KEYWORDS[route],
     ogType: route === "" ? "website" : "article",

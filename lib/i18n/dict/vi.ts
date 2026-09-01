@@ -51,9 +51,9 @@ const vi: Dictionary = {
   },
 
   home: {
-    metaTitle: "Bảng tính sát thương MapleStory M",
+    metaTitle: "Tính sát thương MapleStory M — Boss, IED & Chí mạng",
     metaDescription:
-      "Bảng tính sát thương MapleStory M miễn phí. Nhập chỉ số của bạn để xem sát thương mỗi đòn lên quái và boss — kèm hệ số chênh lệch cấp độ, phòng thủ boss (IED), buff thức ăn, hệ số hyper skill và khoảng chí mạng thấp nhất–cao nhất, dựa trên công thức sát thương đã được cộng đồng kiểm chứng.",
+      "Nhập chỉ số MapleStory M, xem ngay sát thương mỗi đòn lên quái và boss — đã tính phạt chênh cấp, phòng thủ boss (IED), khoảng chí mạng và buff thức ăn.",
     h1: "Bảng tính sát thương MapleStory M",
     intro:
       "Nhập chỉ số từ bảng chỉ số trong game để xem sát thương lên quái và lên boss cạnh nhau — thường, chí mạng và trung bình mỗi đòn, đã tính cả phạt cấp độ, phòng thủ boss và buff thức ăn. Thử một thay đổi chỉ số trước khi tiêu meso; dữ liệu bạn nhập được lưu trong trình duyệt.",
@@ -247,9 +247,9 @@ const vi: Dictionary = {
   },
 
   flames: {
-    metaTitle: "Xác suất Rebirth Flame trong MapleStory M",
+    metaTitle: "Tỷ lệ Rebirth Flame MapleStory M & số flame cần",
     metaDescription:
-      "Mọi tùy chọn Rebirth Flame trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận trang bị và bậc flame, chọn các tùy chọn bạn muốn — bất kỳ dòng nào, hoặc hai tùy chọn cụ thể cùng nằm trên một flame — rồi xem tỷ lệ mỗi lần flame và số lần flame cần bỏ ra.",
+      "Xem tỷ lệ thật mỗi lần flame và cần bao nhiêu flame mới ra — mọi tùy chọn Rebirth Flame MapleStory M theo bộ phận và bậc, từ tỷ lệ chính thức của Nexon.",
     h1: "Xác suất Rebirth Flame",
     intro:
       "Bảng Rebirth Flame chính thức của Nexon, ở dạng tương tác. Chọn bộ phận trang bị và bậc flame, chạm vào những giá trị bạn thực sự muốn, rồi xem tỷ lệ mỗi lần flame — cùng số lần flame cần để đạt mức 50/50 hoặc gần như chắc chắn.",
@@ -446,9 +446,9 @@ const vi: Dictionary = {
   },
 
   cubes: {
-    metaTitle: "Xác suất Cube trong MapleStory M",
+    metaTitle: "Tỷ lệ Cube MapleStory M & số cube cần",
     metaDescription:
-      "Mọi tùy chọn tiềm năng và tiềm năng cộng thêm trong MapleStory M cùng tỷ lệ chính xác, lấy từ công bố xác suất chính thức của Nexon. Chọn bộ phận, bậc và dòng, chọn các tùy chọn bạn muốn — bất kỳ dòng nào, hoặc 2–3 dòng cụ thể trên cùng một trang bị — rồi xem tỷ lệ mỗi cube và số cube cần bỏ ra.",
+      "Xem tỷ lệ thật mỗi cube và cần bao nhiêu cube mới ra — mọi dòng tiềm năng và tiềm năng cộng thêm MapleStory M theo bộ phận và bậc, theo tỷ lệ chính thức Nexon.",
     h1: "Xác suất Cube",
     intro:
       "Bảng tiềm năng và tiềm năng cộng thêm chính thức của Nexon, ở dạng tương tác. Chọn bộ phận, bậc và nhóm dòng, chạm vào những tùy chọn bạn thực sự muốn, rồi xem tỷ lệ mỗi cube — cùng số cube cần để đạt được.",

@@ -56,9 +56,9 @@ const en = {
   },
 
   home: {
-    metaTitle: "MapleStory M Damage Calculator",
+    metaTitle: "MapleStory M Damage Calculator — Boss, IED & Crit",
     metaDescription:
-      "Free MapleStory M damage calculator. Enter your stats to see mob and boss damage per hit — with the level-difference modifier, boss defense (IED), food buffs, hyper skill modifiers and crit min–max, based on the community-verified damage formula.",
+      "Enter your MapleStory M stats, get mob and boss damage per hit — level-gap penalty, boss defense (IED), crit min–max and food buffs applied. Free, no sign-up.",
     h1: "MapleStory M Damage Calculator",
     intro:
       "Enter your stats from the in-game stat window to see your mob and boss damage side by side — normal, critical and average per hit, with the level penalty, boss defense and food buffs factored in. Test a stat change before you spend mesos; your inputs are saved in your browser.",
@@ -253,9 +253,9 @@ const en = {
   },
 
   flames: {
-    metaTitle: "MapleStory M Rebirth Flame Probabilities",
+    metaTitle: "MapleStory M Rebirth Flame Odds & Flames Needed",
     metaDescription:
-      "Every MapleStory M Rebirth Flame option and its exact drop rate, ported from Nexon's official probability disclosure. Pick an equipment part and flame tier, select the options you want, and see your chance per flame — for any one of them, or for two specific options landing on the same flame — plus how many flames you need.",
+      "See your real chance per flame and how many flames it takes — every MapleStory M Rebirth Flame option by equipment part and tier, from Nexon's official rates.",
     h1: "Rebirth Flame Probabilities",
     intro:
       "Nexon's official Rebirth Flame tables, made interactive. Pick an equipment part and flame tier, tap the option values you actually want, and see your chance per flame — plus how many flames it takes for a coin-flip or a near-certain hit.",
@@ -454,9 +454,9 @@ const en = {
   },
 
   cubes: {
-    metaTitle: "MapleStory M Cube Probabilities",
+    metaTitle: "MapleStory M Cube Odds & Cubes Needed per Line",
     metaDescription:
-      "Every MapleStory M potential and bonus potential option with its exact chance, ported from Nexon's official probability disclosure. Pick a part, rank and line, select the options you want, and see your chance per cube — for any one line, or for two or three specific lines on the same item — and how many cubes it takes.",
+      "See your chance per cube and how many cubes it takes — every MapleStory M potential and bonus potential line by part and rank, from Nexon's official rates.",
     h1: "Cube Probabilities",
     intro:
       "Nexon's official potential and bonus potential tables, made interactive. Pick a part, rank and line pool, tap the options you actually want, and see your chance per cube — plus how many cubes it takes to get there.",
