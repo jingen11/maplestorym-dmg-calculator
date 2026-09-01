@@ -82,7 +82,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: `${SITE_NAME} — ${dict.home.metaTitle}`,
+      default: `${SITE_NAME} — ${dict.home.h1}`,
       template: `%s | ${SITE_NAME}`,
     },
     description: dict.site.description,
@@ -119,31 +119,41 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <WebAnalytics />
         <CustomCursor />
+        {/* The wordmark, three tool links and the language switcher need
+            ~490px on one line — wider than any phone. Below `sm` the tool
+            links wrap to a row of their own (`order-last w-full`), leaving
+            the wordmark and switcher sharing the top row; from `sm` up they
+            fold back inline and the header is a single row again. */}
         <header className="border-b-[3px] border-wood bg-panel">
-          <nav className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
+          <nav className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:flex-nowrap sm:gap-4">
             <Link
               href={localePath(locale)}
-              className="flex shrink-0 items-center gap-2 font-display text-xl text-maple [text-shadow:0_2px_0_rgba(67,48,31,0.2)]"
+              className="flex min-w-0 shrink items-center gap-2 truncate font-display text-lg text-maple [text-shadow:0_2px_0_rgba(67,48,31,0.2)] sm:shrink-0 sm:text-xl"
             >
-              <LogoLeafSprite className="h-7 w-7" />
+              <LogoLeafSprite className="h-7 w-7 shrink-0" />
               {SITE_NAME}
             </Link>
-            <div className="flex items-center gap-3 text-sm font-bold text-ink sm:gap-4">
-              <Link href={localePath(locale)} className="hover:text-maple">
+            <div className="order-last flex w-full items-center justify-between gap-4 border-t-2 border-wood-light/30 pt-1.5 text-sm font-bold text-ink sm:order-none sm:ml-auto sm:w-auto sm:justify-end sm:border-t-0 sm:pt-0">
+              <Link
+                href={localePath(locale)}
+                className="py-1.5 hover:text-maple"
+              >
                 {dict.nav.damage}
               </Link>
               <Link
                 href={localePath(locale, "flames")}
-                className="hover:text-maple"
+                className="py-1.5 hover:text-maple"
               >
                 {dict.nav.flames}
               </Link>
               <Link
                 href={localePath(locale, "cubes")}
-                className="hover:text-maple"
+                className="py-1.5 hover:text-maple"
               >
                 {dict.nav.cubes}
               </Link>
+            </div>
+            <div className="ml-auto shrink-0 sm:ml-0">
               <LanguageSwitcher locale={locale} label={dict.nav.language} />
             </div>
           </nav>

@@ -20,12 +20,20 @@ const OG_LOCALE: Record<Locale, string> = {
   th: "th_TH",
   zh: "zh_CN",
   vi: "vi_VN",
+  id: "id_ID",
 };
 
 interface PageMetaOptions {
   locale: Locale;
   route: Route;
+  /** The <title>, i.e. the search result headline. Tuned for mobile SERP
+      width, so it carries a differentiator the plain page name doesn't. */
   title: string;
+  /** The page's plain name, used for the OG/Twitter card. Kept separate
+      because those get the site name appended: pinning them to `title` would
+      read "MapleStory M Toolbox — MapleStory M Damage Calculator — Boss, IED
+      & Crit", doubling the brand and burying the point. */
+  socialTitle: string;
   description: string;
   keywords?: string[];
   /** Home uses the site-wide "website" type; the tool pages are articles. */
@@ -36,12 +44,16 @@ export function pageMetadata({
   locale,
   route,
   title,
+  socialTitle,
   description,
   keywords,
   ogType = "article",
 }: PageMetaOptions): Metadata {
   const url = absoluteUrl(localePath(locale, route));
-  const fullTitle = route === "" ? `${SITE_NAME} — ${title}` : `${title} | ${SITE_NAME}`;
+  const fullTitle =
+    route === ""
+      ? `${SITE_NAME} — ${socialTitle}`
+      : `${socialTitle} | ${SITE_NAME}`;
 
   return {
     title,

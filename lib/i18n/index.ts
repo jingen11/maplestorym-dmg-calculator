@@ -6,21 +6,24 @@
 // front. Each locale's page bundle only pulls in the dictionary it uses.
 
 import en, { type Dictionary } from "./dict/en";
+import id from "./dict/id";
 import th from "./dict/th";
 import vi from "./dict/vi";
 import zh from "./dict/zh";
 import termsEn, { type Terms } from "./terms/en";
+import termsId from "./terms/id";
 import termsTh from "./terms/th";
 import termsVi from "./terms/vi";
 import termsZh from "./terms/zh";
 import type { Locale } from "./config";
 
-const DICTIONARIES: Record<Locale, Dictionary> = { en, th, zh, vi };
+const DICTIONARIES: Record<Locale, Dictionary> = { en, th, zh, vi, id };
 const TERMS: Record<Locale, Terms> = {
   en: termsEn,
   th: termsTh,
   zh: termsZh,
   vi: termsVi,
+  id: termsId,
 };
 
 export function getDictionary(locale: Locale): Dictionary {

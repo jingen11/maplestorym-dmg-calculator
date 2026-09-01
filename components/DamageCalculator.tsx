@@ -588,7 +588,12 @@ export default function DamageCalculator({
         </p>
         <p className="stage-label hidden sm:block">{dict.bounds}</p>
 
-        <div className="mt-2 flex items-start justify-center gap-3 sm:mt-3 sm:gap-8">
+        {/* Normal and Critical stack on phones. Side by side they split an
+            already-halved panel into ~60px columns, which is narrower than
+            the nowrap gain text — so the brackets bled across the divider
+            into the neighbouring panel. Stacked, each gets the full panel
+            width; from `sm` up they sit side by side as before. */}
+        <div className="mt-2 flex flex-col items-center gap-1.5 sm:mt-3 sm:flex-row sm:items-start sm:justify-center sm:gap-8">
           <div>
             <p className="stage-label">{dict.normal}</p>
             <p className="mt-1 sm:mt-2">
@@ -693,127 +698,133 @@ export default function DamageCalculator({
           {/* Fixed layout: the gain columns hold a value that changes on
               every keystroke, and an auto-width table would resize itself
               under the reader each time. Widths are set once here. */}
-          <table className="mt-4 w-full table-fixed border-collapse">
-            <caption className="sr-only">{eff.ariaTable}</caption>
-            <colgroup>
-              <col />
-              <col className="w-[5.5rem] sm:w-24" />
-              <col className="w-[4.25rem] sm:w-24" />
-              <col className="w-[4.25rem] sm:w-24" />
-            </colgroup>
-            <thead>
-              <tr className="border-b-2 border-wood-light/60">
-                <th scope="col" className="stage-label pb-2 text-left">
-                  {eff.stat}
-                </th>
-                <th scope="col" className="stage-label pb-2 text-left">
-                  {eff.step}
-                </th>
-                <th
-                  scope="col"
-                  className="stage-label pb-2 text-right leading-tight"
-                >
-                  {eff.mob}
-                </th>
-                <th
-                  scope="col"
-                  className="stage-label pb-2 text-right leading-tight"
-                >
-                  {eff.boss}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {gains.map((row) => {
-                const isBest = bestGain > 0 && row.bossPercent === bestGain;
-                const capped =
-                  row.stat === "critRatePercent" &&
-                  row.step > 0 &&
-                  row.mobPercent === 0;
-                return (
-                  <tr
-                    key={row.stat}
-                    className="border-b border-wood-light/30 last:border-0"
+          {/* The three fixed columns need ~12rem between them; below that the
+              stat column collapses to a few pixels and the names clip. The
+              min-width keeps them legible and hands the overflow to a scroll
+              container instead — the same pattern the flame table uses. */}
+          <div className="-mx-1 overflow-x-auto px-1">
+            <table className="mt-4 w-full min-w-[19rem] table-fixed border-collapse">
+              <caption className="sr-only">{eff.ariaTable}</caption>
+              <colgroup>
+                <col />
+                <col className="w-[5.5rem] sm:w-24" />
+                <col className="w-[3.5rem] sm:w-24" />
+                <col className="w-[3.5rem] sm:w-24" />
+              </colgroup>
+              <thead>
+                <tr className="border-b-2 border-wood-light/60">
+                  <th scope="col" className="stage-label pb-2 text-left">
+                    {eff.stat}
+                  </th>
+                  <th scope="col" className="stage-label pb-2 text-left">
+                    {eff.step}
+                  </th>
+                  <th
+                    scope="col"
+                    className="stage-label pb-2 text-right leading-tight"
                   >
-                    <th
-                      scope="row"
-                      className="py-2 pr-2 text-left align-top font-normal"
+                    {eff.mob}
+                  </th>
+                  <th
+                    scope="col"
+                    className="stage-label pb-2 text-right leading-tight"
+                  >
+                    {eff.boss}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {gains.map((row) => {
+                  const isBest = bestGain > 0 && row.bossPercent === bestGain;
+                  const capped =
+                    row.stat === "critRatePercent" &&
+                    row.step > 0 &&
+                    row.mobPercent === 0;
+                  return (
+                    <tr
+                      key={row.stat}
+                      className="border-b border-wood-light/30 last:border-0"
                     >
-                      <span className="flex items-center gap-1.5">
-                        {/* Wraps rather than truncates: the stat column is
-                            whatever the fixed columns leave over, and a
-                            clipped stat name is worse than a tall row. */}
-                        <span className="min-w-0 text-xs font-bold leading-tight text-ink sm:text-sm">
-                          {typedText(dict.fields[row.stat].label)}
-                        </span>
-                        {isBest && (
-                          <span
-                            title={eff.bestAria}
-                            className="shrink-0 rounded border border-maple bg-maple/10 px-1 text-[10px] font-bold text-maple-deep"
-                          >
-                            {eff.best}
-                          </span>
-                        )}
-                      </span>
-                      <span
-                        aria-hidden
-                        className="mt-1 block h-1 rounded-full bg-wood-light/40"
+                      <th
+                        scope="row"
+                        className="py-2 pr-2 text-left align-top font-normal"
                       >
+                        <span className="flex items-center gap-1.5">
+                          {/* Wraps rather than truncates: the stat column is
+                              whatever the fixed columns leave over, and a
+                              clipped stat name is worse than a tall row. */}
+                          <span className="min-w-0 text-xs font-bold leading-tight text-ink sm:text-sm">
+                            {typedText(dict.fields[row.stat].label)}
+                          </span>
+                          {isBest && (
+                            <span
+                              title={eff.bestAria}
+                              className="shrink-0 rounded border border-maple bg-maple/10 px-1 text-[10px] font-bold text-maple-deep"
+                            >
+                              {eff.best}
+                            </span>
+                          )}
+                        </span>
                         <span
-                          className="block h-1 rounded-full bg-maple"
-                          style={{
-                            width: `${
-                              bestGain > 0
-                                ? (Math.max(row.bossPercent, 0) / bestGain) * 100
-                                : 0
-                            }%`,
-                          }}
-                        />
-                      </span>
-                      {capped && (
-                        <span className="mt-1 block text-[11px] text-ink-soft">
-                          {eff.capped}
+                          aria-hidden
+                          className="mt-1 block h-1 rounded-full bg-wood-light/40"
+                        >
+                          <span
+                            className="block h-1 rounded-full bg-maple"
+                            style={{
+                              width: `${
+                                bestGain > 0
+                                  ? (Math.max(row.bossPercent, 0) / bestGain) * 100
+                                  : 0
+                              }%`,
+                            }}
+                          />
                         </span>
-                      )}
-                    </th>
-                    <td className="py-2 pr-2 align-top">
-                      <span className="flex items-center gap-1">
-                        <span className="shrink-0 text-xs font-bold text-ink-soft">
-                          +
-                        </span>
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          aria-label={typedText(dict.fields[row.stat].label)}
-                          value={steps[row.stat]}
-                          onChange={(e) => {
-                            if (DECIMAL_PATTERN.test(e.target.value)) {
-                              setSteps((prev) => ({
-                                ...prev,
-                                [row.stat]: e.target.value,
-                              }));
-                            }
-                          }}
-                          className="w-12 min-w-0 rounded-lg border-2 border-wood-light bg-panel-deep px-1.5 py-1 text-xs font-bold text-ink tabular-nums transition focus:border-maple sm:w-14 sm:px-2"
-                        />
-                        {row.stat !== "physAtk" && (
-                          <span className="shrink-0 text-xs text-ink-soft">
-                            %
+                        {capped && (
+                          <span className="mt-1 block text-[11px] text-ink-soft">
+                            {eff.capped}
                           </span>
                         )}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
-                      {renderGain(row.mobPercent)}
-                    </td>
-                    <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
-                      {renderGain(row.bossPercent)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </th>
+                      <td className="py-2 pr-2 align-top">
+                        <span className="flex items-center gap-1">
+                          <span className="shrink-0 text-xs font-bold text-ink-soft">
+                            +
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            aria-label={typedText(dict.fields[row.stat].label)}
+                            value={steps[row.stat]}
+                            onChange={(e) => {
+                              if (DECIMAL_PATTERN.test(e.target.value)) {
+                                setSteps((prev) => ({
+                                  ...prev,
+                                  [row.stat]: e.target.value,
+                                }));
+                              }
+                            }}
+                            className="w-12 min-w-0 rounded-lg border-2 border-wood-light bg-panel-deep px-1.5 py-1 text-xs font-bold text-ink tabular-nums transition focus:border-maple sm:w-14 sm:px-2"
+                          />
+                          {row.stat !== "physAtk" && (
+                            <span className="shrink-0 text-xs text-ink-soft">
+                              %
+                            </span>
+                          )}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
+                        {renderGain(row.mobPercent)}
+                      </td>
+                      <td className="whitespace-nowrap py-2 pl-1 text-right align-top text-xs font-bold tabular-nums text-sky-ink sm:text-sm">
+                        {renderGain(row.bossPercent)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
           <p className="mt-3 text-xs text-ink-soft">{eff.note}</p>
         </div>
