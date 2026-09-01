@@ -17,7 +17,9 @@ export interface StaticSiteStackProps extends cdk.StackProps {
 
 /**
  * Static site: CloudFront -> private S3 bucket (Origin Access Control),
- * serving the Next.js static export from ../out on the apex domain + www.
+ * serving the Next.js static export from ../out on the apex domain. www
+ * stays an alias on the same distribution — with a DNS record and a cert
+ * SAN — purely so it can answer over HTTPS with a 301 to the apex.
  */
 export class StaticSiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: StaticSiteStackProps) {
@@ -35,14 +37,40 @@ export class StaticSiteStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
-    // The export uses trailingSlash, so pages live at <path>/index.html.
-    // CloudFront only maps the root automatically; this viewer-request
-    // function rewrites the rest.
+    /* Viewer-request function, doing two jobs in one (CloudFront allows only
+       one function per event type per behaviour):
+
+       1. Canonical host. The distribution answers on www and on its own
+          *.cloudfront.net name as well as the apex, and used to serve all
+          three a 200 — so Google indexed www separately from the apex and
+          split the rankings between them. Anything that isn't the apex now
+          301s to it. This runs before the cache lookup and builds its own
+          response, so the cached objects (whose key carries no host) are
+          never involved.
+
+       2. The export uses trailingSlash, so pages live at <path>/index.html.
+          CloudFront only maps the root automatically; the rest is rewritten
+          here — after the redirect, so Location keeps the clean URL. */
     const rewriteFunction = new cloudfront.Function(this, "IndexRewrite", {
-      comment: "Rewrite directory URLs to their index.html object",
+      comment: "Redirect non-apex hosts, rewrite directory URLs to index.html",
       code: cloudfront.FunctionCode.fromInline(`
+var APEX = '${domainName}';
+
 function handler(event) {
   var request = event.request;
+
+  var host = request.headers.host ? request.headers.host.value.toLowerCase() : APEX;
+  if (host !== APEX) {
+    return {
+      statusCode: 301,
+      statusDescription: 'Moved Permanently',
+      headers: {
+        location: { value: 'https://' + APEX + request.uri + queryString(request) },
+        'cache-control': { value: 'max-age=86400' }
+      }
+    };
+  }
+
   var uri = request.uri;
   if (uri.endsWith('/')) {
     request.uri = uri + 'index.html';
@@ -50,6 +78,20 @@ function handler(event) {
     request.uri = uri + '/index.html';
   }
   return request;
+}
+
+// Rebuild the query string the redirect has to carry through: the event
+// hands it over already split into an object, one entry per name.
+function queryString(request) {
+  var parts = [];
+  for (var name in request.querystring) {
+    var param = request.querystring[name];
+    var values = param.multiValue || [param];
+    for (var i = 0; i < values.length; i++) {
+      parts.push(values[i].value === '' ? name : name + '=' + values[i].value);
+    }
+  }
+  return parts.length ? '?' + parts.join('&') : '';
 }
 `),
     });
