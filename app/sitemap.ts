@@ -14,6 +14,7 @@ const PRIORITY: Record<Route, number> = {
   "": 1,
   flames: 0.8,
   cubes: 0.8,
+  starforce: 0.8,
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {

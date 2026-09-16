@@ -5,6 +5,9 @@
   --color-sky: #b9ddf3;
   --color-sky-light: #e3f3fc;
   --color-sky-ink: #33627f;
+  /* Chart series blue: sky-ink pushed to enough chroma to hold its own
+     against maple as a second data colour (validated for CVD contrast) */
+  --color-sky-deep: #2f6f9f;
   --color-panel: #fdf3dc;
   --color-panel-deep: #f6e6c4;
   --color-wood: #7c5433;

@@ -3,11 +3,11 @@
 // The locale is the *last* path segment, so the tool keeps its own URL and
 // each translation hangs off it:
 //
-//   /            /flames/            /cubes/            English
-//   /th/         /flames/th/         /cubes/th/         Thai
-//   /zh/         /flames/zh/         /cubes/zh/         Simplified Chinese
-//   /vi/         /flames/vi/         /cubes/vi/         Vietnamese
-//   /id/         /flames/id/         /cubes/id/         Indonesian
+//   /       /flames/       /cubes/       /starforce/       English
+//   /th/    /flames/th/    /cubes/th/    /starforce/th/    Thai
+//   /zh/    /flames/zh/    /cubes/zh/    /starforce/zh/    Simplified Chinese
+//   /vi/    /flames/vi/    /cubes/vi/    /starforce/vi/    Vietnamese
+//   /id/    /flames/id/    /cubes/id/    /starforce/id/    Indonesian
 //
 // English is unprefixed and keeps the exact URLs the site already has
 // indexed — nothing moves, the other locales are purely additive. Every
@@ -58,8 +58,8 @@ export function isLocale(value: string): value is Locale {
   return (LOCALES as readonly string[]).includes(value);
 }
 
-/** The three tool routes, without locale prefix or slashes. */
-export const ROUTES = ["", "flames", "cubes"] as const;
+/** The four tool routes, without locale prefix or slashes. */
+export const ROUTES = ["", "flames", "cubes", "starforce"] as const;
 
 export type Route = (typeof ROUTES)[number];
 
@@ -87,7 +87,8 @@ export function routeSlug(locale: Locale, route: Route = ""): string[] {
 /**
  * Reads a catch-all slug back into a route + locale.
  *
- * Locale codes and route names never collide (th/zh/vi/id vs flames/cubes),
+ * Locale codes and route names never collide (th/zh/vi/id vs
+ * flames/cubes/starforce),
  * so a single leading segment is unambiguous: `["flames"]` is the English
  * flames page, `["th"]` is the Thai home.
  */

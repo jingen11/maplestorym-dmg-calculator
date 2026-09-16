@@ -80,6 +80,15 @@ export default function HomePage({ locale }: { locale: Locale }) {
           <p className="mt-1 text-xs leading-relaxed text-ink-soft">
             {dict.home.cubesBlurb}
           </p>
+          <Link
+            href={localePath(locale, "starforce")}
+            className="mt-4 block text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+          >
+            {dict.home.starforceLink}
+          </Link>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            {dict.home.starforceBlurb}
+          </p>
         </div>
       </section>
 
