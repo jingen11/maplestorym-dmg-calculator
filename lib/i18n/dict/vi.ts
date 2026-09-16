@@ -5,6 +5,7 @@ const vi: Dictionary = {
     damage: "Sát thương",
     flames: "Flame",
     cubes: "Cube",
+    starforce: "Star Force",
     language: "Ngôn ngữ",
     skipToContent: "Bỏ qua, tới nội dung chính",
   },
@@ -66,6 +67,9 @@ const vi: Dictionary = {
     damageLink: "Bảng tính sát thương →",
     damageBlurb:
       "Sát thương mỗi đòn lên quái và boss, đã tính phạt cấp độ, phòng thủ boss và buff thức ăn.",
+    starforceLink: "Chi phí Star Force →",
+    starforceBlurb:
+      "Lên mỗi sao thường tốn bao nhiêu meso — chi phí kỳ vọng và chi phí thường gặp từ sao hiện tại đến sao mục tiêu, kèm tỉ lệ tụt sao và hỏng đồ của từng lần bấm.",
     faq: [
       {
         question: "Sát thương trong MapleStory M được tính như thế nào?",
@@ -649,6 +653,172 @@ const vi: Dictionary = {
         question: "Những bộ phận nào có tiềm năng cộng thêm?",
         answer:
           "Phần lớn trang bị đều có, nhưng Dây chuyền, Nhẫn và Vật phẩm túi không có bảng tiềm năng cộng thêm trong công bố của Nexon, nên bảng tính tắt tùy chọn đó với chúng.",
+      },
+    ],
+  },
+
+  starforce: {
+    metaTitle: "Chi phí Star Force MapleStory M — Meso mỗi sao",
+    metaDescription:
+      "Lên mỗi sao trong MapleStory M tốn bao nhiêu meso? Chi phí Star Force kỳ vọng và thường gặp từ sao của bạn đến sao mục tiêu, kèm tỉ lệ tụt sao và hỏng đồ.",
+    h1: "Bảng tính chi phí Star Force",
+    intro:
+      "Chọn sao hiện tại và sao mục tiêu để xem hành trình thường tốn bao nhiêu — meso kỳ vọng, lượt thường gặp và lượt xui — theo từng sao, kèm tỉ lệ thành công, tụt sao và hỏng đồ của mỗi lần bấm.",
+
+    ariaTool: "Bảng tính chi phí Star Force",
+    climb: "★{from} → ★{to}",
+    expected: "Chi phí kỳ vọng",
+    typical: "Lượt thường gặp",
+    unlucky: "Lượt xui",
+    taps: "Số lần bấm kỳ vọng",
+    breaks: "Số lần hỏng kỳ vọng",
+    typicalHint:
+      "Thường gặp là trung vị của {runs} lượt mô phỏng; 9 trong 10 lượt kết thúc dưới con số lượt xui.",
+    simCapped:
+      "Mô phỏng dừng ở ★{star} — cao hơn nữa, một lượt cần quá nhiều lần bấm để chạy hết trong trình duyệt. Giá trị kỳ vọng vẫn có đủ cho mọi sao.",
+
+    mesoUnits: [
+      { value: 1e9, suffix: " tỷ" },
+      { value: 1e6, suffix: " triệu" },
+      { value: 1e3, suffix: "k" },
+    ],
+
+    setup: "Hành trình của bạn",
+    from: "Sao hiện tại",
+    to: "Sao mục tiêu",
+    starValue: "★{star}",
+    minigame: "Tôi luôn bấm trúng minigame +5%",
+    minigameHint:
+      "— nhân tỉ lệ thành công mỗi lần với 1,05 (30% thành 31,5%). Phần thêm lấy từ tỉ lệ giữ sao, không đụng tới tỉ lệ tụt sao hay hỏng.",
+    repair: "Phí sửa mỗi lần hỏng",
+    repairHint:
+      "Meso để phục hồi món đồ hỏng trước lần bấm tiếp theo. Đặt 0 nếu Shielding Ward khiến hỏng đồ không mất gì.",
+
+    chartTitle: "Meso để lên từng sao",
+    chartSubtitle: "Cộng dồn từ ★{from}. Rê hoặc chạm vào một sao để xem số.",
+    scale: "Thang",
+    scaleLog: "Log",
+    scaleLinear: "Tuyến tính",
+    legendExpected: "Kỳ vọng",
+    legendMedian: "Thường gặp (trung vị)",
+    legendBand: "10–90% số lượt",
+    chartAria: "Biểu đồ meso cộng dồn cần để lên từng sao, từ ★{from} đến ★{to}",
+    pointAria: "★{star}: kỳ vọng {expected}, thường gặp {median}, xui {p90}",
+    tooltipStep: "Riêng sao này: kỳ vọng {cost} trong {taps} lần bấm",
+    tooltipNoSim: "Không mô phỏng",
+
+    tableTitle: "Từng sao",
+    colStar: "Sao",
+    colTap: "Mỗi lần",
+    colSuccess: "Thành công",
+    colKeep: "Giữ",
+    colDrop: "Tụt",
+    colBreak: "Hỏng",
+    colStep: "Sao này",
+    colCumulative: "Tổng kỳ vọng",
+    colMedian: "Tổng thường gặp",
+    colP90: "Tổng lượt xui",
+    tableFootnote:
+      "Mỗi hàng là lần bấm từ sao trước đó. Tổng tính từ ★{from} và đã gồm {repair} cho mỗi lần hỏng.",
+
+    noteSource: "Tỉ lệ và chi phí lấy từ {link}, kiểm tra lần cuối {date}.",
+    sourceLabel: "bảng tính chi phí Star Force của cộng đồng",
+    dataNotes: [
+      "Mỗi hàng là một lần bấm cường hóa từ sao trước lên sao này: chi phí meso và tỉ lệ thành công, giữ sao, tụt một sao hoặc hỏng.",
+      "Khi hỏng, số sao được giữ nguyên nhưng phải sửa món đồ bằng meso trước khi cường hóa tiếp.",
+      "Nguồn ghi ★11 và ★12 không có tỉ lệ hỏng, nhưng hai hàng đó chỉ cộng được 95% và bảng +5% của nguồn cho thấy 5% hỏng ở cả hai — ở đây dùng 5%.",
+      "Giá trị kỳ vọng được giải chính xác từ tỉ lệ. Con số thường gặp và lượt xui đến từ hàng nghìn lượt mô phỏng trong trình duyệt của bạn trên cùng bảng đó.",
+    ],
+
+    steps: [
+      {
+        title: "Đặt sao hiện tại và sao mục tiêu",
+        body: "Kéo hai thanh trượt. Con số đầu trang, biểu đồ và bảng đều tính lại cho hành trình đó — chi phí cộng dồn từ sao hiện tại của bạn, không phải từ 0.",
+      },
+      {
+        title: "Cho biết bạn bấm thế nào",
+        body: "Tích ô minigame nếu bạn bấm trúng thời điểm +5% một cách ổn định; nó nhân mỗi tỉ lệ thành công với 1,05. Đặt phí sửa đúng bằng số meso một lần hỏng thực sự tốn của bạn — hoặc 0 nếu Shielding Ward lo phần đó.",
+      },
+      {
+        title: "Đọc ba con số",
+        body: "Kỳ vọng là trung bình dài hạn, bị kéo lên bởi số ít người xui. Thường gặp là lượt trung vị — nửa số người tốn ít hơn, nửa tốn nhiều hơn. Xui là mốc mà 9 trong 10 lượt đã xong. Lập ngân sách theo thường gặp; biết trước con số xui.",
+      },
+      {
+        title: "Đọc biểu đồ",
+        body: "Mỗi điểm là tổng để lần đầu chạm tới sao đó. Đường cam là chi phí kỳ vọng, đường xanh là lượt trung vị, và dải màu là nơi 80% số lượt rơi vào. Thang mặc định là log vì mỗi sao tốn gấp nhiều lần sao trước — chuyển sang tuyến tính để cảm nhận bức tường.",
+      },
+      {
+        title: "Xem tỉ lệ mỗi lần bấm",
+        body: "Bảng cho thấy một lần bấm ở mỗi sao sẽ ra sao — thành công, giữ, tụt, hỏng — và riêng sao đó dự kiến tốn thêm bao nhiêu trên tất cả những gì đã chi trước đó.",
+      },
+    ],
+
+    exampleIntro:
+      "Lên từ ★{from} đến ★{to}, không có bonus minigame và phí sửa {repair} mỗi lần hỏng:",
+    exampleExpected: "Chi phí kỳ vọng",
+    exampleTaps: "Số lần bấm kỳ vọng",
+    exampleBreaks: "Số lần hỏng kỳ vọng",
+    exampleLast: "Riêng sao cuối",
+    exampleShare: "{share}% cả hành trình",
+    exampleGap:
+      "Đó là hình dạng của mọi hành trình Star Force: qua ★15, mỗi sao tốn xấp xỉ bằng tất cả sao trước cộng lại, nên sao cuối luôn là phần lớn hóa đơn.",
+
+    readExpected:
+      "Chi phí kỳ vọng là trung bình dài hạn — số tiền mỗi người tốn nếu hàng nghìn người cùng đi hành trình này. Vài lượt thảm họa kéo nó lên cao hơn hẳn mức phần lớn người chơi thực trả.",
+    readExpectedTerm: "Chi phí kỳ vọng",
+    readTypical:
+      "Lượt thường gặp là trung vị của các lượt mô phỏng — nửa rẻ hơn, nửa đắt hơn. Lượt xui là mốc 90% số lượt đã xong; 10% còn lại còn dài hơn nữa.",
+    readTypicalTerm: "Lượt thường gặp",
+    readTypicalTerm2: "Lượt xui",
+    readLog:
+      "Log là mặc định vì mỗi sao tốn gấp nhiều lần sao trước — trên thang tuyến tính, mọi thứ trước sao cuối bị ép phẳng thành số 0. Tuyến tính ở đó để cho bạn thấy đúng điều ấy.",
+    readLogTerm: "Log",
+    readLogTerm2: "Tuyến tính",
+
+    spendDrops:
+      "Từ ★10 trở lên, một lần bấm thất bại có thể làm bạn tụt một sao, và từ cùng mốc đó món đồ có thể hỏng. Cả hai đã được tính vào chi phí kỳ vọng — tụt sao nghĩa là trả lại tiền cho sao trước một lần nữa.",
+    spendBreak:
+      "Hỏng đồ giữ nguyên sao nhưng phải trả phí sửa trước khi bấm tiếp. Đặt phí sửa về 0 để thấy chính xác Shielding Ward đáng giá bao nhiêu với bạn.",
+    spendTail:
+      "Lập ngân sách theo lượt thường gặp và biết con số xui trước khi bắt đầu. Từ ★17 trở lên, một chuỗi tụt sao dài có thể khiến hành trình tốn gấp đôi — trung bình không cảnh báo bạn điều đó, dải màu thì có.",
+    spendWall:
+      "Qua ★20, mỗi lần bấm thành công 1% và tụt sao 40%. Riêng ★21 dự kiến tốn hơn ba mươi lần toàn bộ hành trình từ ★0 đến ★20.",
+
+    howToName: "Cách ước tính chi phí Star Force trong MapleStory M",
+    howToDescription:
+      "Tính xem thường tốn bao nhiêu meso để lên sao mục tiêu từ sao hiện tại, và phần đuôi xui còn thêm bao nhiêu.",
+    appName: "Bảng tính chi phí Star Force",
+
+    faq: [
+      {
+        question: "Lên 17 sao trong MapleStory M tốn bao nhiêu meso?",
+        answer:
+          "Từ ★0, chi phí kỳ vọng để lên ★17 khoảng {to17} đã gồm phí sửa, và một lượt thường gặp rơi vào khoảng {to17typical}. ★18 kỳ vọng khoảng {to18}, ★20 khoảng {to20}. Hãy đặt sao hiện tại của bạn trong bảng tính — tổng từ ★10 chỉ thấp hơn từ ★0 một chút, vì các sao thấp gần như miễn phí khi so ra.",
+      },
+      {
+        question: "Tỉ lệ thành công Star Force trong MapleStory M là bao nhiêu?",
+        answer:
+          "Bắt đầu 100% ở ★1 và giảm 5% mỗi sao: 95% ở ★2, 50% ở ★11, 30% ở ★15, 20% ở ★17, 10% ở ★19 và 5% ở ★20. Từ ★21 mỗi lần bấm là 1%. Bảng đầy đủ theo từng lần bấm — thành công, giữ, tụt, hỏng — có trên trang này.",
+      },
+      {
+        question: "Khi nào cường hóa Star Force có thể tụt sao hoặc hỏng đồ?",
+        answer:
+          "Các lần bấm từ ★10 trở lên (tức đi lên ★11 hoặc cao hơn) có thể tụt một sao hoặc hỏng đồ. Tỉ lệ tụt tăng từ 10% ở ★11 lên 30% ở ★19–20 và 40% từ ★21; tỉ lệ hỏng là 5% từ ★11 đến ★20, 10% từ ★21 và 15% từ ★26. Hỏng giữ nguyên sao nhưng phải sửa món đồ trước lần bấm tiếp.",
+      },
+      {
+        question: "Minigame +5% Star Force có đáng làm không?",
+        answer:
+          "Có — nó nhân tỉ lệ thành công với 1,05, nên 20% thành 21%, và phần thêm lấy từ tỉ lệ giữ sao. Điều đó cắt chi phí kỳ vọng của hành trình ★0 đến ★20 từ khoảng {to20} xuống {to20mg}, tiết kiệm chừng {mgSaving}%, chỉ nhờ bấm đúng nhịp.",
+      },
+      {
+        question: "Vì sao chi phí kỳ vọng cao hơn hẳn chi phí thường gặp?",
+        answer:
+          "Vì chi phí Star Force bị lệch: phần lớn lượt bình thường, nhưng vài lượt gặp chuỗi tụt sao dài ở sao cao và tốn gấp nhiều lần trung vị. Những lượt đó kéo trung bình lên. Con số thường gặp là mốc nửa số người chơi vượt được; con số xui là mốc 9 trong 10 người vượt được.",
+      },
+      {
+        question: "21 sao trở lên tốn bao nhiêu?",
+        answer:
+          "Từ ★21 mỗi lần bấm thành công 1% và tụt 40%, nên riêng ★21 kỳ vọng tốn khoảng {star21} — gấp nhiều lần toàn bộ hành trình ★0 đến ★20. Bảng tính hiển thị giá trị kỳ vọng tới ★{max}, nhưng con số thường gặp và xui mô phỏng dừng ở nơi một lượt cần hàng triệu lần bấm.",
       },
     ],
   },

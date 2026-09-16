@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import CubesPage from "@/components/pages/CubesPage";
 import FlamesPage from "@/components/pages/FlamesPage";
 import HomePage from "@/components/pages/HomePage";
+import StarForcePage from "@/components/pages/StarForcePage";
 import { getDictionary, parseSlug } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/i18n/site";
 
@@ -51,6 +52,25 @@ const KEYWORDS = {
     "MapleStory M potential calculator",
     "two potential lines on one item",
   ],
+  starforce: [
+    "MapleStory M star force",
+    "star force calculator",
+    "star force cost",
+    "MSM star force mesos",
+    "star force success rate",
+    "star force break chance",
+    "mesos per star",
+    "MapleStory M enhancement cost",
+    "17 star cost",
+    "20 star cost",
+  ],
+};
+
+const PAGES = {
+  "": HomePage,
+  flames: FlamesPage,
+  cubes: CubesPage,
+  starforce: StarForcePage,
 };
 
 export async function generateMetadata({
@@ -61,8 +81,7 @@ export async function generateMetadata({
 
   const { route, locale } = parsed;
   const dict = getDictionary(locale);
-  const page =
-    route === "" ? dict.home : route === "flames" ? dict.flames : dict.cubes;
+  const page = dict[route === "" ? "home" : route];
 
   return pageMetadata({
     locale,
@@ -80,7 +99,6 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   if (!parsed) notFound();
 
   const { route, locale } = parsed;
-  if (route === "flames") return <FlamesPage locale={locale} />;
-  if (route === "cubes") return <CubesPage locale={locale} />;
-  return <HomePage locale={locale} />;
+  const Page = PAGES[route];
+  return <Page locale={locale} />;
 }

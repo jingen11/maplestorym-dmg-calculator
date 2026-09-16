@@ -119,8 +119,8 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <WebAnalytics />
         <CustomCursor />
-        {/* The wordmark, three tool links and the language switcher need
-            ~490px on one line — wider than any phone. Below `sm` the tool
+        {/* The wordmark, four tool links and the language switcher need
+            ~580px on one line — wider than any phone. Below `sm` the tool
             links wrap to a row of their own (`order-last w-full`), leaving
             the wordmark and switcher sharing the top row; from `sm` up they
             fold back inline and the header is a single row again. */}
@@ -151,6 +151,12 @@ export default async function RootLayout({
                 className="py-1.5 hover:text-maple"
               >
                 {dict.nav.cubes}
+              </Link>
+              <Link
+                href={localePath(locale, "starforce")}
+                className="py-1.5 hover:text-maple"
+              >
+                {dict.nav.starforce}
               </Link>
             </div>
             <div className="ml-auto shrink-0 sm:ml-0">

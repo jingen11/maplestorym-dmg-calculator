@@ -10,6 +10,7 @@ const en = {
     damage: "Damage",
     flames: "Flames",
     cubes: "Cubes",
+    starforce: "Star Force",
     language: "Language",
     skipToContent: "Skip to content",
   },
@@ -71,6 +72,9 @@ const en = {
     damageLink: "Damage calculator →",
     damageBlurb:
       "Mob and boss damage per hit, with the level penalty, boss defense and food buffs factored in.",
+    starforceLink: "Star Force cost →",
+    starforceBlurb:
+      "How many mesos it usually takes to reach each star — expected and typical cost from your star to your target, with the drop and break odds of every tap.",
     faq: [
       {
         question: "How is damage calculated in MapleStory M?",
@@ -655,6 +659,179 @@ const en = {
         question: "Which parts have bonus potential?",
         answer:
           "Most equipment does, but Pendant, Ring and Pocket have no bonus potential table in Nexon's disclosure, so the calculator disables that option for them.",
+      },
+    ],
+  },
+
+  starforce: {
+    metaTitle: "MapleStory M Star Force Cost — Mesos per Star",
+    metaDescription:
+      "How many mesos to reach each star in MapleStory M? Expected and typical Star Force cost from your star to your target, with drop and break odds per tap.",
+    h1: "Star Force Cost Calculator",
+    intro:
+      "Pick your current star and your target and see what the climb usually costs — the expected mesos, the typical run and the unlucky tail, star by star — with the success, drop and break chance of every tap.",
+
+    ariaTool: "Star Force cost calculator",
+    climb: "★{from} → ★{to}",
+    expected: "Expected cost",
+    typical: "Typical run",
+    unlucky: "Unlucky run",
+    taps: "Expected taps",
+    breaks: "Expected breaks",
+    typicalHint:
+      "Typical is the median of {runs} simulated runs; 9 in 10 runs finish under the unlucky figure.",
+    simCapped:
+      "Simulated runs stop at ★{star} — above it a single climb takes too many taps to play out in a browser. Expected values still cover every star.",
+
+    /* Meso amounts are compacted to the unit players actually say. Largest
+       unit first; `value` is the threshold, `suffix` is appended to the
+       scaled number. */
+    mesoUnits: [
+      { value: 1e9, suffix: " bil" },
+      { value: 1e6, suffix: " mil" },
+      { value: 1e3, suffix: "k" },
+    ],
+
+    setup: "Your climb",
+    from: "Current star",
+    to: "Target star",
+    starValue: "★{star}",
+    minigame: "I always land the +5% minigame",
+    minigameHint:
+      "— multiplies each success chance by 1.05 (30% becomes 31.5%). The bonus comes out of the keep-star chance, never the drop or break chance.",
+    repair: "Repair cost per break",
+    repairHint:
+      "Mesos to restore a broken item before the next tap. Set 0 if a Shielding Ward makes breaks free.",
+
+    chartTitle: "Mesos to reach each star",
+    chartSubtitle: "Cumulative from ★{from}. Hover or tap a star for the numbers.",
+    scale: "Scale",
+    scaleLog: "Log",
+    scaleLinear: "Linear",
+    legendExpected: "Expected",
+    legendMedian: "Typical (median)",
+    legendBand: "10–90% of runs",
+    chartAria:
+      "Chart of cumulative mesos needed to reach each star from ★{from} to ★{to}",
+    pointAria:
+      "★{star}: expected {expected}, typical {median}, unlucky {p90}",
+    tooltipStep: "This star alone: {cost} expected over {taps} taps",
+    tooltipNoSim: "Not simulated",
+
+    tableTitle: "Star by star",
+    colStar: "Star",
+    colTap: "Per tap",
+    colSuccess: "Success",
+    colKeep: "Keep",
+    colDrop: "Drop",
+    colBreak: "Break",
+    colStep: "This star",
+    colCumulative: "Expected total",
+    colMedian: "Typical total",
+    colP90: "Unlucky total",
+    tableFootnote:
+      "Each row is the tap from the previous star. Totals run from ★{from} and include {repair} per break.",
+
+    noteSource: "Rates and costs from the {link}, last checked {date}.",
+    sourceLabel: "community Star Force cost spreadsheet",
+    dataNotes: [
+      "Each row is one enhancement tap from the previous star to this one: the meso cost and the chance of success, keeping the star, dropping one star, or breaking.",
+      "A break keeps the star, but the item has to be repaired for mesos before it can be enhanced again.",
+      "The source lists ★11 and ★12 with no break chance, but those rows only total 95% and its +5% table shows 5% break for both — 5% is used here.",
+      "Expected values are solved exactly from the rates. The typical and unlucky figures come from thousands of climbs simulated in your browser against the same table.",
+    ],
+
+    steps: [
+      {
+        title: "Set your current and target star",
+        body: "Drag the two sliders. The headline, the chart and the table all rebuild for that climb — costs are cumulative from your current star, not from zero.",
+      },
+      {
+        title: "Say how you tap",
+        body: "Tick the minigame box if you reliably land the +5% timing bonus; it multiplies every success chance by 1.05. Set the repair cost to what a break actually costs you — or 0 if a Shielding Ward covers it.",
+      },
+      {
+        title: "Read the three numbers",
+        body: "Expected is the long-run average, pulled up by the unlucky few. Typical is the median run — half of players spend less, half more. Unlucky is where 9 in 10 runs have finished. Budget for typical; know unlucky.",
+      },
+      {
+        title: "Read the chart",
+        body: "Each point is the total to first reach that star. The orange line is the expected cost, the blue line the median run, and the shaded band where 80% of runs land. The scale is logarithmic because each star costs several times the last — flip to linear to feel the wall.",
+      },
+      {
+        title: "Check the tap odds",
+        body: "The table shows what a single tap does at each star — success, keep, drop, break — and what that star alone is expected to cost on top of everything before it.",
+      },
+    ],
+
+    exampleIntro:
+      "Climbing from ★{from} to ★{to} with no minigame bonus and a {repair} repair per break:",
+    exampleExpected: "Expected cost",
+    exampleTaps: "Expected taps",
+    exampleBreaks: "Expected breaks",
+    exampleLast: "The last star alone",
+    exampleShare: "{share}% of the whole climb",
+    exampleGap:
+      "That is the shape of every Star Force climb: past ★15 each star costs about as much as every star before it combined, so the last star is always the bulk of the bill.",
+
+    readExpected:
+      "Expected cost is the long-run average — what the climb costs per player if thousands of players did it. A few disastrous runs pull it well above what most players pay.",
+    readExpectedTerm: "Expected cost",
+    readTypical:
+      "Typical run is the median of simulated runs — half finish cheaper, half dearer. Unlucky run is where 90% of runs have finished; the last 10% run longer still.",
+    readTypicalTerm: "Typical run",
+    readTypicalTerm2: "Unlucky run",
+    readLog:
+      "Log scale is the default because each star costs several times the last — on a linear scale everything before the final star flattens to nothing. Linear is there to show exactly that.",
+    readLogTerm: "Log",
+    readLogTerm2: "Linear",
+
+    spendDrops:
+      "From ★10 upward a failed tap can drop you a star, and from the same point it can break the item. Both are already priced into the expected cost — a drop means paying for the previous star all over again.",
+    spendBreak:
+      "A break keeps your star but costs a repair before you can tap again. Set the repair cost to 0 to see exactly what a Shielding Ward is worth to you.",
+    spendTail:
+      "Budget for the typical run and know the unlucky figure before you start. At ★17 and above one long drop streak can double a climb — the mean does not warn you about that, the band does.",
+    spendWall:
+      "Past ★20 every tap succeeds 1% of the time and drops 40% of the time. ★21 alone is expected to cost more than thirty times the entire climb from ★0 to ★20.",
+
+    howToName: "How to estimate MapleStory M Star Force costs",
+    howToDescription:
+      "Work out how many mesos it usually takes to reach a target star from your current star, and how much the unlucky tail adds.",
+    appName: "Star Force Cost Calculator",
+
+    /* {to17}, {to20}, {star21} and friends are filled from the same table
+       the calculator uses, so the answers can never drift from the tool. */
+    faq: [
+      {
+        question: "How many mesos does it take to reach 17 stars in MapleStory M?",
+        answer:
+          "From ★0, the expected cost to reach ★17 is about {to17} including repairs, and a typical run comes in around {to17typical}. ★18 is about {to18} expected, ★20 about {to20}. Set your own current star in the calculator — the total from ★10 is barely lower than from ★0, because the low stars are almost free by comparison.",
+      },
+      {
+        question: "What are the Star Force success rates in MapleStory M?",
+        answer:
+          "They start at 100% for ★1 and fall 5% per star: 95% for ★2, 50% for ★11, 30% for ★15, 20% for ★17, 10% for ★19 and 5% for ★20. From ★21 every tap is 1%. The full per-tap table — success, keep, drop and break — is on this page.",
+      },
+      {
+        question: "When can Star Force enhancement drop a star or break the item?",
+        answer:
+          "Taps from ★10 upward (that is, going for ★11 or higher) can drop one star or break the item. Drop chance climbs from 10% at ★11 to 30% at ★19–20 and 40% from ★21; break chance is 5% from ★11 to ★20, 10% from ★21 and 15% from ★26. A break keeps the star but the item must be repaired before the next tap.",
+      },
+      {
+        question: "Is the +5% Star Force minigame worth doing?",
+        answer:
+          "Yes — it is a multiplicative 1.05 on the success chance, so 20% becomes 21%, and the extra comes out of the keep-star chance. That trims the expected cost of a ★0 to ★20 climb from about {to20} to {to20mg}, roughly {mgSaving}% off, for nothing but a well-timed tap.",
+      },
+      {
+        question: "Why is the expected cost so much higher than the typical cost?",
+        answer:
+          "Because Star Force costs are skewed: most runs are unremarkable, but a few hit a long streak of drops at high stars and cost several times the median. Those runs pull the average up. The typical figure is what half of players beat; the unlucky figure is what 9 in 10 beat.",
+      },
+      {
+        question: "How much does 21 stars and above cost?",
+        answer:
+          "From ★21 every tap is 1% to succeed and 40% to drop, so the expected cost of ★21 alone is around {star21} — more than the entire climb from ★0 to ★20 many times over. The calculator shows the expected values up to ★{max}, but the simulated typical and unlucky figures stop where a single run would take millions of taps.",
       },
     ],
   },

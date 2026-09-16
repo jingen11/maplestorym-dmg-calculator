@@ -5,6 +5,7 @@ const id: Dictionary = {
     damage: "Damage",
     flames: "Flame",
     cubes: "Cube",
+    starforce: "Star Force",
     language: "Bahasa",
     skipToContent: "Lewati ke konten",
   },
@@ -66,6 +67,9 @@ const id: Dictionary = {
     damageLink: "Kalkulator damage →",
     damageBlurb:
       "Damage per hit ke mob dan boss, sudah menghitung penalti level, pertahanan boss dan buff makanan.",
+    starforceLink: "Biaya Star Force →",
+    starforceBlurb:
+      "Berapa meso yang biasanya dibutuhkan untuk mencapai tiap bintang — biaya ekspektasi dan biaya tipikal dari bintangmu ke target, dengan peluang turun bintang dan hancur di setiap tap.",
     faq: [
       {
         question: "Bagaimana damage dihitung di MapleStory M?",
@@ -651,6 +655,172 @@ const id: Dictionary = {
         question: "Bagian mana saja yang punya bonus potential?",
         answer:
           "Sebagian besar perlengkapan punya, tetapi Kalung, Cincin dan Item Saku tidak punya tabel bonus potential dalam pengungkapan Nexon, jadi kalkulator menonaktifkan opsi itu untuk mereka.",
+      },
+    ],
+  },
+
+  starforce: {
+    metaTitle: "Biaya Star Force MapleStory M — Meso per Bintang",
+    metaDescription:
+      "Berapa meso untuk mencapai tiap bintang di MapleStory M? Biaya Star Force ekspektasi dan tipikal dari bintangmu ke target, plus peluang turun dan hancur.",
+    h1: "Kalkulator Biaya Star Force",
+    intro:
+      "Pilih bintangmu sekarang dan targetmu, lalu lihat berapa biasanya biaya pendakiannya — meso ekspektasi, run tipikal dan run sial, bintang demi bintang — dengan peluang sukses, turun bintang dan hancur di setiap tap.",
+
+    ariaTool: "Kalkulator biaya Star Force",
+    climb: "★{from} → ★{to}",
+    expected: "Biaya ekspektasi",
+    typical: "Run tipikal",
+    unlucky: "Run sial",
+    taps: "Ekspektasi tap",
+    breaks: "Ekspektasi hancur",
+    typicalHint:
+      "Tipikal adalah median dari {runs} run simulasi; 9 dari 10 run selesai di bawah angka run sial.",
+    simCapped:
+      "Simulasi berhenti di ★{star} — di atasnya, satu pendakian butuh terlalu banyak tap untuk dijalankan di browser. Nilai ekspektasi tetap tersedia untuk semua bintang.",
+
+    mesoUnits: [
+      { value: 1e9, suffix: " miliar" },
+      { value: 1e6, suffix: " juta" },
+      { value: 1e3, suffix: "k" },
+    ],
+
+    setup: "Pendakianmu",
+    from: "Bintang sekarang",
+    to: "Bintang target",
+    starValue: "★{star}",
+    minigame: "Saya selalu kena minigame +5%",
+    minigameHint:
+      "— mengalikan tiap peluang sukses dengan 1,05 (30% jadi 31,5%). Bonusnya diambil dari peluang bintang tetap, bukan dari peluang turun atau hancur.",
+    repair: "Biaya perbaikan per hancur",
+    repairHint:
+      "Meso untuk memulihkan item yang hancur sebelum tap berikutnya. Isi 0 jika Shielding Ward membuat hancur jadi gratis.",
+
+    chartTitle: "Meso untuk mencapai tiap bintang",
+    chartSubtitle: "Kumulatif dari ★{from}. Arahkan atau ketuk sebuah bintang untuk melihat angkanya.",
+    scale: "Skala",
+    scaleLog: "Log",
+    scaleLinear: "Linear",
+    legendExpected: "Ekspektasi",
+    legendMedian: "Tipikal (median)",
+    legendBand: "10–90% run",
+    chartAria: "Grafik meso kumulatif yang dibutuhkan untuk mencapai tiap bintang dari ★{from} ke ★{to}",
+    pointAria: "★{star}: ekspektasi {expected}, tipikal {median}, sial {p90}",
+    tooltipStep: "Bintang ini saja: ekspektasi {cost} dalam {taps} tap",
+    tooltipNoSim: "Tidak disimulasikan",
+
+    tableTitle: "Bintang demi bintang",
+    colStar: "Bintang",
+    colTap: "Per tap",
+    colSuccess: "Sukses",
+    colKeep: "Tetap",
+    colDrop: "Turun",
+    colBreak: "Hancur",
+    colStep: "Bintang ini",
+    colCumulative: "Total ekspektasi",
+    colMedian: "Total tipikal",
+    colP90: "Total sial",
+    tableFootnote:
+      "Tiap baris adalah tap dari bintang sebelumnya. Total dihitung dari ★{from} dan sudah termasuk {repair} per hancur.",
+
+    noteSource: "Peluang dan biaya dari {link}, terakhir dicek {date}.",
+    sourceLabel: "spreadsheet biaya Star Force komunitas",
+    dataNotes: [
+      "Tiap baris adalah satu tap enhancement dari bintang sebelumnya ke bintang ini: biaya meso dan peluang sukses, bintang tetap, turun satu bintang, atau hancur.",
+      "Saat hancur, bintang tetap, tetapi item harus diperbaiki dengan meso sebelum bisa di-enhance lagi.",
+      "Sumber mencantumkan ★11 dan ★12 tanpa peluang hancur, tetapi baris itu hanya berjumlah 95% dan tabel +5%-nya menunjukkan 5% hancur untuk keduanya — di sini dipakai 5%.",
+      "Nilai ekspektasi dihitung persis dari peluangnya. Angka tipikal dan sial berasal dari ribuan pendakian yang disimulasikan di browsermu dengan tabel yang sama.",
+    ],
+
+    steps: [
+      {
+        title: "Atur bintang sekarang dan target",
+        body: "Geser kedua slider. Angka di atas, grafik dan tabel semuanya dihitung ulang untuk pendakian itu — biaya kumulatif dari bintangmu sekarang, bukan dari nol.",
+      },
+      {
+        title: "Beri tahu cara kamu tap",
+        body: "Centang kotak minigame jika kamu konsisten kena bonus timing +5%; itu mengalikan tiap peluang sukses dengan 1,05. Isi biaya perbaikan sesuai yang benar-benar kamu bayar saat hancur — atau 0 jika ditanggung Shielding Ward.",
+      },
+      {
+        title: "Baca tiga angkanya",
+        body: "Ekspektasi adalah rata-rata jangka panjang, tertarik ke atas oleh segelintir yang sial. Tipikal adalah run median — separuh pemain bayar lebih sedikit, separuh lebih banyak. Sial adalah titik di mana 9 dari 10 run sudah selesai. Anggarkan untuk tipikal; ketahui sial.",
+      },
+      {
+        title: "Baca grafiknya",
+        body: "Tiap titik adalah total untuk pertama kali mencapai bintang itu. Garis oranye biaya ekspektasi, garis biru run median, dan pita berwarna tempat 80% run mendarat. Skalanya logaritmik karena tiap bintang beberapa kali lipat lebih mahal dari sebelumnya — ganti ke linear untuk merasakan temboknya.",
+      },
+      {
+        title: "Cek peluang per tap",
+        body: "Tabel menunjukkan hasil satu tap di tiap bintang — sukses, tetap, turun, hancur — dan berapa ekspektasi biaya bintang itu saja di atas semua yang sebelumnya.",
+      },
+    ],
+
+    exampleIntro:
+      "Mendaki dari ★{from} ke ★{to} tanpa bonus minigame dan perbaikan {repair} per hancur:",
+    exampleExpected: "Biaya ekspektasi",
+    exampleTaps: "Ekspektasi tap",
+    exampleBreaks: "Ekspektasi hancur",
+    exampleLast: "Bintang terakhir saja",
+    exampleShare: "{share}% dari seluruh pendakian",
+    exampleGap:
+      "Itulah bentuk setiap pendakian Star Force: lewat ★15, tiap bintang biayanya kira-kira sama dengan semua bintang sebelumnya digabung, jadi bintang terakhir selalu jadi porsi terbesar tagihan.",
+
+    readExpected:
+      "Biaya ekspektasi adalah rata-rata jangka panjang — biaya per pemain jika ribuan pemain melakukannya. Beberapa run bencana menariknya jauh di atas yang dibayar kebanyakan pemain.",
+    readExpectedTerm: "Biaya ekspektasi",
+    readTypical:
+      "Run tipikal adalah median dari run simulasi — separuh selesai lebih murah, separuh lebih mahal. Run sial adalah titik 90% run sudah selesai; 10% sisanya lebih panjang lagi.",
+    readTypicalTerm: "Run tipikal",
+    readTypicalTerm2: "Run sial",
+    readLog:
+      "Log jadi default karena tiap bintang beberapa kali lipat lebih mahal dari sebelumnya — pada skala linear semua yang sebelum bintang terakhir jadi rata ke nol. Linear ada justru untuk menunjukkan itu.",
+    readLogTerm: "Log",
+    readLogTerm2: "Linear",
+
+    spendDrops:
+      "Dari ★10 ke atas, tap yang gagal bisa menurunkanmu satu bintang, dan dari titik yang sama item bisa hancur. Keduanya sudah termasuk dalam biaya ekspektasi — turun bintang berarti membayar bintang sebelumnya sekali lagi.",
+    spendBreak:
+      "Hancur membuat bintangmu tetap, tetapi butuh biaya perbaikan sebelum tap lagi. Isi biaya perbaikan 0 untuk melihat persis berapa nilai Shielding Ward bagimu.",
+    spendTail:
+      "Anggarkan untuk run tipikal dan ketahui angka sial sebelum mulai. Di ★17 ke atas, satu rentetan turun bintang bisa menggandakan biaya pendakian — rata-rata tidak memperingatkanmu, pitanya iya.",
+    spendWall:
+      "Lewat ★20, tiap tap sukses 1% dan turun 40%. ★21 saja ekspektasinya lebih dari tiga puluh kali seluruh pendakian dari ★0 ke ★20.",
+
+    howToName: "Cara memperkirakan biaya Star Force MapleStory M",
+    howToDescription:
+      "Hitung berapa meso yang biasanya dibutuhkan untuk mencapai bintang target dari bintangmu sekarang, dan berapa tambahan dari ekor yang sial.",
+    appName: "Kalkulator Biaya Star Force",
+
+    faq: [
+      {
+        question: "Berapa meso untuk mencapai 17 bintang di MapleStory M?",
+        answer:
+          "Dari ★0, biaya ekspektasi ke ★17 sekitar {to17} termasuk perbaikan, dan run tipikal sekitar {to17typical}. ★18 ekspektasinya sekitar {to18}, ★20 sekitar {to20}. Atur bintangmu sendiri di kalkulator — total dari ★10 hanya sedikit lebih rendah daripada dari ★0, karena bintang rendah nyaris gratis dibandingkan sisanya.",
+      },
+      {
+        question: "Berapa peluang sukses Star Force di MapleStory M?",
+        answer:
+          "Mulai 100% untuk ★1 dan turun 5% per bintang: 95% untuk ★2, 50% untuk ★11, 30% untuk ★15, 20% untuk ★17, 10% untuk ★19 dan 5% untuk ★20. Dari ★21 tiap tap 1%. Tabel per tap lengkap — sukses, tetap, turun dan hancur — ada di halaman ini.",
+      },
+      {
+        question: "Kapan enhancement Star Force bisa turun bintang atau menghancurkan item?",
+        answer:
+          "Tap dari ★10 ke atas (yaitu menuju ★11 atau lebih) bisa turun satu bintang atau menghancurkan item. Peluang turun naik dari 10% di ★11 ke 30% di ★19–20 dan 40% dari ★21; peluang hancur 5% dari ★11 sampai ★20, 10% dari ★21 dan 15% dari ★26. Hancur membuat bintang tetap, tetapi item harus diperbaiki sebelum tap berikutnya.",
+      },
+      {
+        question: "Apakah minigame +5% Star Force layak dilakukan?",
+        answer:
+          "Ya — itu pengali 1,05 pada peluang sukses, jadi 20% menjadi 21%, dan tambahannya diambil dari peluang bintang tetap. Itu memangkas biaya ekspektasi pendakian ★0 ke ★20 dari sekitar {to20} menjadi {to20mg}, hemat kira-kira {mgSaving}%, hanya dengan tap yang tepat waktu.",
+      },
+      {
+        question: "Kenapa biaya ekspektasi jauh lebih tinggi dari biaya tipikal?",
+        answer:
+          "Karena biaya Star Force miring: kebanyakan run biasa saja, tetapi beberapa kena rentetan turun bintang panjang di bintang tinggi dan biayanya beberapa kali lipat median. Run itu menarik rata-rata ke atas. Angka tipikal adalah yang dilampaui separuh pemain; angka sial yang dilampaui 9 dari 10.",
+      },
+      {
+        question: "Berapa biaya 21 bintang ke atas?",
+        answer:
+          "Dari ★21 tiap tap 1% sukses dan 40% turun, jadi biaya ekspektasi ★21 saja sekitar {star21} — berkali-kali lipat seluruh pendakian ★0 ke ★20. Kalkulator menampilkan nilai ekspektasi sampai ★{max}, tetapi angka tipikal dan sial hasil simulasi berhenti di titik satu run butuh jutaan tap.",
       },
     ],
   },

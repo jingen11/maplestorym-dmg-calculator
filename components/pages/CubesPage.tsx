@@ -259,6 +259,17 @@ export default function CubesPage({ locale }: { locale: Locale }) {
               {dict.home.damageBlurb}
             </p>
           </div>
+          <div>
+            <Link
+              href={localePath(locale, "starforce")}
+              className="text-sm font-bold text-maple-deep underline underline-offset-2 hover:text-maple"
+            >
+              {dict.home.starforceLink}
+            </Link>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              {dict.home.starforceBlurb}
+            </p>
+          </div>
         </div>
       </section>
 
