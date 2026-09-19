@@ -7,23 +7,29 @@
 
 import en, { type Dictionary } from "./dict/en";
 import id from "./dict/id";
+import ja from "./dict/ja";
+import ko from "./dict/ko";
 import th from "./dict/th";
 import vi from "./dict/vi";
 import zh from "./dict/zh";
 import termsEn, { type Terms } from "./terms/en";
 import termsId from "./terms/id";
+import termsJa from "./terms/ja";
+import termsKo from "./terms/ko";
 import termsTh from "./terms/th";
 import termsVi from "./terms/vi";
 import termsZh from "./terms/zh";
 import type { Locale } from "./config";
 
-const DICTIONARIES: Record<Locale, Dictionary> = { en, th, zh, vi, id };
+const DICTIONARIES: Record<Locale, Dictionary> = { en, th, zh, vi, id, ko, ja };
 const TERMS: Record<Locale, Terms> = {
   en: termsEn,
   th: termsTh,
   zh: termsZh,
   vi: termsVi,
   id: termsId,
+  ko: termsKo,
+  ja: termsJa,
 };
 
 export function getDictionary(locale: Locale): Dictionary {

@@ -21,6 +21,8 @@ const OG_LOCALE: Record<Locale, string> = {
   zh: "zh_CN",
   vi: "vi_VN",
   id: "id_ID",
+  ko: "ko_KR",
+  ja: "ja_JP",
 };
 
 interface PageMetaOptions {

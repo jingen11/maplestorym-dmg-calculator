@@ -8,6 +8,8 @@
 //   /zh/    /flames/zh/    /cubes/zh/    /starforce/zh/    Simplified Chinese
 //   /vi/    /flames/vi/    /cubes/vi/    /starforce/vi/    Vietnamese
 //   /id/    /flames/id/    /cubes/id/    /starforce/id/    Indonesian
+//   /ko/    /flames/ko/    /cubes/ko/    /starforce/ko/    Korean
+//   /ja/    /flames/ja/    /cubes/ja/    /starforce/ja/    Japanese
 //
 // English is unprefixed and keeps the exact URLs the site already has
 // indexed — nothing moves, the other locales are purely additive. Every
@@ -18,7 +20,7 @@
 // only be set in a root layout, so the root layout has to be the one that
 // sees it.
 
-export const LOCALES = ["en", "th", "zh", "vi", "id"] as const;
+export const LOCALES = ["en", "th", "zh", "vi", "id", "ko", "ja"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -52,6 +54,8 @@ export const LOCALE_META: Record<Locale, LocaleMeta> = {
     short: "ID",
     match: ["id", "in"],
   },
+  ko: { hreflang: "ko", label: "한국어", short: "한국어", match: ["ko"] },
+  ja: { hreflang: "ja", label: "日本語", short: "日本語", match: ["ja"] },
 };
 
 export function isLocale(value: string): value is Locale {
@@ -87,7 +91,7 @@ export function routeSlug(locale: Locale, route: Route = ""): string[] {
 /**
  * Reads a catch-all slug back into a route + locale.
  *
- * Locale codes and route names never collide (th/zh/vi/id vs
+ * Locale codes and route names never collide (th/zh/vi/id/ko/ja vs
  * flames/cubes/starforce),
  * so a single leading segment is unambiguous: `["flames"]` is the English
  * flames page, `["th"]` is the Thai home.
