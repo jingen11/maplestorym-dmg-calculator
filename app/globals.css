@@ -29,10 +29,11 @@ body {
 }
 
 /* Lilita One (display) and Nunito (body) cover Latin, Latin-Ext and
-   Vietnamese but have no Thai or Han glyphs, so those locales would fall
-   back to whatever the device has. Swapping the two font variables here
-   redirects every rule that reads them — body text, .window-title,
-   .stage-label — to a face that can actually render the script.
+   Vietnamese but have no Thai, Han, Hangul or kana glyphs, so those
+   locales would fall back to whatever the device has. Swapping the two
+   font variables here redirects every rule that reads them — body text,
+   .window-title, .stage-label — to a face that can actually render the
+   script.
 
    The damage digits (.dmg-text) deliberately keep Lilita One: they only
    ever contain 0-9, and the chunky in-game look is the point. */
@@ -48,6 +49,23 @@ html[lang="zh-Hans"] {
   --font-nunito: var(--font-noto-sc);
 }
 
+/* Korean spaces its words, but browsers still break Hangul between any two
+   syllables by default — keep-all wraps at the spaces like Latin text.
+   break-word is the safety net for a run too long for a phone-width line. */
+html[lang="ko"] {
+  --font-sans: var(--font-noto-kr);
+  --font-display: var(--font-noto-kr);
+  --font-nunito: var(--font-noto-kr);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+html[lang="ja"] {
+  --font-sans: var(--font-noto-jp);
+  --font-display: var(--font-noto-jp);
+  --font-nunito: var(--font-noto-jp);
+}
+
 /* Tailwind's `font-display` utility is declared with @theme *inline*, so it
    compiles to the literal `var(--font-lilita)` and never reads
    --font-display. Overriding --font-lilita instead would drag the damage
@@ -60,19 +78,34 @@ html[lang="zh-Hans"] .font-display {
   font-family: var(--font-noto-sc), sans-serif;
 }
 
-/* Han and Thai headings need to sit heavier to match Lilita One's weight */
+html[lang="ko"] .font-display {
+  font-family: var(--font-noto-kr), sans-serif;
+}
+
+html[lang="ja"] .font-display {
+  font-family: var(--font-noto-jp), sans-serif;
+}
+
+/* Han, Hangul, kana and Thai headings need to sit heavier to match Lilita
+   One's weight */
 html[lang="th"] .window-title,
 html[lang="zh-Hans"] .window-title,
+html[lang="ko"] .window-title,
+html[lang="ja"] .window-title,
 html[lang="th"] .font-display,
-html[lang="zh-Hans"] .font-display {
+html[lang="zh-Hans"] .font-display,
+html[lang="ko"] .font-display,
+html[lang="ja"] .font-display {
   font-weight: 800;
   letter-spacing: 0.01em;
 }
 
-/* Uppercasing does nothing to Thai or Han and the wide tracking just
+/* Uppercasing does nothing to Thai or CJK and the wide tracking just
    shreds the words apart */
 html[lang="th"] .stage-label,
-html[lang="zh-Hans"] .stage-label {
+html[lang="zh-Hans"] .stage-label,
+html[lang="ko"] .stage-label,
+html[lang="ja"] .stage-label {
   text-transform: none;
   letter-spacing: 0.02em;
 }
@@ -136,7 +169,7 @@ input[type="button"] {
 .dmg-text,
 .dmg-text-crit {
   /* Pinned to Lilita One rather than --font-display: these spans only ever
-     hold 0-9, and the Thai/Han locales repoint --font-display at a face
+     hold 0-9, and the Thai/CJK locales repoint --font-display at a face
      whose digits would lose the chunky in-game look. */
   font-family: var(--font-lilita), sans-serif;
   letter-spacing: 0.02em;

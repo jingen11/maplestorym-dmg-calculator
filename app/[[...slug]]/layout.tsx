@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Lilita_One,
+  Noto_Sans_JP,
+  Noto_Sans_KR,
   Noto_Sans_SC,
   Noto_Sans_Thai,
   Nunito,
@@ -44,10 +46,11 @@ const pixel = Press_Start_2P({
   variable: "--font-pixel-2p",
 });
 
-/* Lilita One and Nunito have no Thai or Han glyphs. These carry the body
-   text for those locales — `preload: false` because only one locale's pages
-   ever reference them, and the Han face in particular is far too heavy to
-   preload on every page. globals.css picks them up per `html[lang]`. */
+/* Lilita One and Nunito have no Thai, Han, Hangul or kana glyphs. These
+   carry the body text for those locales — `preload: false` because only one
+   locale's pages ever reference them, and the CJK faces in particular are
+   far too heavy to preload on every page. globals.css picks them up per
+   `html[lang]`. */
 const notoThai = Noto_Sans_Thai({
   subsets: ["thai"],
   variable: "--font-noto-thai",
@@ -57,6 +60,18 @@ const notoThai = Noto_Sans_Thai({
 const notoSC = Noto_Sans_SC({
   subsets: ["latin"],
   variable: "--font-noto-sc",
+  preload: false,
+});
+
+const notoKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  variable: "--font-noto-kr",
+  preload: false,
+});
+
+const notoJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto-jp",
   preload: false,
 });
 
@@ -114,7 +129,7 @@ export default async function RootLayout({
   return (
     <html
       lang={LOCALE_META[locale].hreflang}
-      className={`${lilita.variable} ${nunito.variable} ${pixel.variable} ${notoThai.variable} ${notoSC.variable} h-full antialiased`}
+      className={`${lilita.variable} ${nunito.variable} ${pixel.variable} ${notoThai.variable} ${notoSC.variable} ${notoKR.variable} ${notoJP.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <WebAnalytics />
